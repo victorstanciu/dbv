@@ -304,7 +304,7 @@ class DBV
         $return = array();
 
         foreach (new DirectoryIterator(DBV_SCHEMA_PATH) as $file) {
-            if ($file->isFile()) {
+            if ($file->isFile() && pathinfo($file->getFilename(), PATHINFO_EXTENSION) == 'sql') {
                 $return[] = pathinfo($file->getFilename(), PATHINFO_FILENAME);
             }
         }
