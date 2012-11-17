@@ -1,0 +1,160 @@
+@import url(bootstrap.css);
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,400,600&subset=latin,latin-ext);
+
+body {
+    font-size: 12px;
+    background: #252726 url(../images/bg.jpg);
+    background: #252726;
+}
+:focus {
+    outline: 0;
+}
+pre {
+	font-family: monospace;
+}
+#left, #right {
+    padding: 10px 0;
+    margin: 10px 0;
+}
+#left {
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+}
+#right {
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.97);
+    border-left: 1px solid white;
+    border-radius: 4px;
+    box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+}
+input[type="submit"] {
+    font-size: 12px;
+}
+.left {
+    float: left !important;
+}
+.right {
+    float: right !important
+}
+.clear {
+    height: 1px;
+    font-size: 1px;
+    line-height: 1px;
+    clear: both;
+}
+h1, h2, h3, h4 {
+    margin-top: 0;
+}
+h1 {
+    font-size: 16px
+}
+h2 {
+    font-size: 14px;
+    line-height: 18px;
+}
+h3 {
+    font-size: 13px;
+}
+h4 {
+    font-size: 12px;
+}
+.nomargin {
+    margin-bottom: 0 !important
+}
+#revision tr.ran td {
+	color: #999;
+	background-color: #F7F9FB;
+}
+a.revision-handle {
+	display: block;
+}
+.ran a.revision-handle {
+	color: #999;
+}
+#revisions .heading {
+    margin-bottom: 0;
+    border-radius: 4px 4px 0 0 !important;
+    border-bottom: none;
+    margin-top: 5px;
+}
+.revision-files .alert-success, .revision-files .alert-error {
+    margin: 5px 0 0 0;
+}
+.btn-mini {
+    font-size: 12px !important;
+}
+#left table {
+    box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+}
+#left .table-bordered, #left .table-bordered th, #left .table-bordered td {
+    border-color: #212121;
+}
+#right .table-striped tbody tr:nth-child(even) td, #right .table-striped tbody tr:nth-child(even) th {
+    background-color: white;
+}
+#left .table-striped tbody tr:nth-child(odd) td, #left .table-striped tbody tr:nth-child(odd) th {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+#left .btn-primary {
+    border-color: #062C5D
+}
+#left .label-success, #left .badge-success {
+    background-color: #379F39;
+}
+#left .label-important, #left .badge-important {
+    background-color: #D54E4B;
+}
+#left label {
+    margin-bottom: 0;
+    cursor: pointer;
+}
+#left .alert {
+    word-break: break-word;
+}
+.alert {
+    padding-right: 14px;
+}
+.alert .close {
+    right: 0;
+    top: 0;
+}
+.alert li {
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px dotted rgba(0, 0, 0, 0.1);
+}
+.alert li.last {
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border: none;
+}
+.alert-error {
+    border: none;
+    background-color: #C00;
+    color: white;
+    text-shadow: none;
+}
+.alert-success {
+    background-color: #E0EF9B;
+    border: 1px solid #B3C063;
+    color: #60700E;
+}
+#left .alert-success {
+    border: none;
+}
+.alert-success .alert-heading, .alert-error .alert-heading {
+    font-size: 13px;
+    display: block;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px dotted rgba(0, 0, 0, 0.1);
+}
+.navbar .brand {
+    color: white !important;
+    font-size: 16px !important;
+    font-weight: bold !important;
+}
+.navbar .brand span {
+    color: black;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .1), 0 0 30px rgba(255, 255, 255, .125);
+}
