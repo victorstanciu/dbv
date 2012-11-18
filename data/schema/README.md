@@ -1,1 +1,1 @@
-Empty readme file, to trick Git into accepting this empty directory
+Empty readme file, you cannot "git add" empty directories
