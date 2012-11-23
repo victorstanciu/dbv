@@ -111,31 +111,39 @@ class DBV_Adapter_MySQL implements DBV_Adapter_Interface
         $index = 1;
         switch ($name) {
             case in_array($name, $this->getTables()):
-                $query = "SHOW CREATE TABLE `$name`";
+                $type = 'table';
                 break;
             case in_array($name, $this->getViews()):
-                $query = "SHOW CREATE VIEW `$name`";
+                $type = 'view';
                 break;
             case in_array($name, $this->getTriggers()):
-                $query = "SHOW CREATE TRIGGER `$name`";
+                $type = 'trigger';
                 $index = 2;
                 break;
             case in_array($name, $this->getProcedures()):
-                $query = "SHOW CREATE PROCEDURE `$name`";
+                $type = 'procedure';
                 $index = 2;
                 break;
             case in_array($name, $this->getFunctions()):
-                $query = "SHOW CREATE FUNCTION `$name`";
+                $type = 'function';
                 $index = 2;
                 break;
             default:
                 throw new DBV_Exception("<strong>$name</strong> not found in the database");
         }
 
+        $query = "SHOW CREATE $type `$name`";
         $result = $this->query($query);
 
         $row = $result->fetch(PDO::FETCH_NUM);
-        return $row[$index];
+        $return = $row[$index];
+
+        // MySQL's SHOW CREATE TABLE command also includes the AUTO_INCREMENT value, so we're removing it here 
+        if ($type == 'table') {
+            $return = preg_replace("/\s?AUTO_INCREMENT=\d+\s?/", " ", $return);
+        }
+
+        return $return;
     }
 
 }
