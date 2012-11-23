@@ -13,7 +13,9 @@ class DBV_Adapter_MySQL implements DBV_Adapter_Interface
     public function connect($host = false, $username = false, $password = false, $database_name = false)
     {
         try {
-            $this->_connection = new PDO("mysql:host=$host;dbname=$database_name", $username, $password);
+            $this->_connection = new PDO("mysql:host=$host;dbname=$database_name", $username, $password, array(
+                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"
+                ));
             $this->_connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
             throw new DBV_Exception($e->getMessage(), $e->getCode());
@@ -50,7 +52,7 @@ class DBV_Adapter_MySQL implements DBV_Adapter_Interface
                 continue;
             }
             $return[] = ($prefix ? "{$prefix} " : '') . $row[0];
-        }       
+        }
 
         return $return;
     }
@@ -65,10 +67,10 @@ class DBV_Adapter_MySQL implements DBV_Adapter_Interface
                 continue;
             }
             $return[] = ($prefix ? "{$prefix} " : '') . $row[0];
-        }       
+        }
 
         return $return;
-    }   
+    }
 
     public function getTriggers($prefix = false)
     {
@@ -77,7 +79,7 @@ class DBV_Adapter_MySQL implements DBV_Adapter_Interface
         $result = $this->query('SHOW TRIGGERS');
         while ($row = $result->fetch(PDO::FETCH_NUM)) {
             $return[] = ($prefix ? "{$prefix} " : '') . $row[0];
-        }   
+        }
 
         return $return;
     }
@@ -89,10 +91,10 @@ class DBV_Adapter_MySQL implements DBV_Adapter_Interface
         $result = $this->query('SHOW FUNCTION STATUS');
         while ($row = $result->fetch(PDO::FETCH_NUM)) {
             $return[] = ($prefix ? "{$prefix} " : '') . $row[1];
-        }   
+        }
 
         return $return;
-    }   
+    }
 
     public function getProcedures($prefix = false)
     {
@@ -138,7 +140,7 @@ class DBV_Adapter_MySQL implements DBV_Adapter_Interface
         $row = $result->fetch(PDO::FETCH_NUM);
         $return = $row[$index];
 
-        // MySQL's SHOW CREATE TABLE command also includes the AUTO_INCREMENT value, so we're removing it here 
+        // MySQL's SHOW CREATE TABLE command also includes the AUTO_INCREMENT value, so we're removing it here
         if ($type == 'table') {
             $return = preg_replace("/\s?AUTO_INCREMENT=\d+\s?/", " ", $return);
         }
