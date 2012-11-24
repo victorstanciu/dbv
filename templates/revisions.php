@@ -62,7 +62,12 @@
 <?php } ?>
 <script type="text/javascript">
 	document.observe('dom:loaded', function () {
-		var textareas = $('revisions').select('textarea');
+		var form = $('revisions');
+		if (!form) {
+			return;
+		}
+
+		var textareas = form.select('textarea');
 		textareas.each(function (textarea) {
 			textarea['data-editor'] = CodeMirror.fromTextArea(textarea, {
 				mode: "text/x-mysql",
@@ -122,10 +127,9 @@
 			});
 		});
 
-		$('revisions').on('submit', function (event) {
+		form.on('submit', function (event) {
 			event.stop();
 
-			var form = this;
 			var data = form.serialize(true);
 
 			clear_messages(this);
