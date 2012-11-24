@@ -10,12 +10,18 @@ class DBV_Adapter_MySQL implements DBV_Adapter_Interface
      */
     protected $_connection;
 
+    /**
+     * @var Database name
+     */
+    private $_database_name;
+
     public function connect($host = false, $username = false, $password = false, $database_name = false)
     {
         try {
             $this->_connection = new PDO("mysql:host=$host;dbname=$database_name", $username, $password, array(
                 PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"
                 ));
+            $this->_database_name = $database_name;
             $this->_connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
             throw new DBV_Exception($e->getMessage(), $e->getCode());
@@ -88,7 +94,7 @@ class DBV_Adapter_MySQL implements DBV_Adapter_Interface
     {
         $return = array();
 
-        $result = $this->query('SHOW FUNCTION STATUS');
+        $result = $this->query('SHOW FUNCTION STATUS WHERE Db = "'.$this->_database_name.'"');
         while ($row = $result->fetch(PDO::FETCH_NUM)) {
             $return[] = ($prefix ? "{$prefix} " : '') . $row[1];
         }
@@ -100,7 +106,7 @@ class DBV_Adapter_MySQL implements DBV_Adapter_Interface
     {
         $return = array();
 
-        $result = $this->query('SHOW PROCEDURE STATUS');
+        $result = $this->query('SHOW PROCEDURE STATUS WHERE Db = "'.$this->_database_name.'"');
         while ($row = $result->fetch(PDO::FETCH_NUM)) {
             $return[] = ($prefix ? "{$prefix} " : '') . $row[1];
         }
