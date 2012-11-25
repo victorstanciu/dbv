@@ -8,7 +8,7 @@ interface DBV_Adapter_Interface
      * @throws DBV_Exception
      */
     public function connect(
-        $host = false, $username = false, $password = false, $database_name = false
+        $host = false, $port = false, $username = false, $password = false, $database_name = false
     );
 
     /**

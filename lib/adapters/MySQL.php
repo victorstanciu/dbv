@@ -10,12 +10,12 @@ class DBV_Adapter_MySQL implements DBV_Adapter_Interface
      */
     protected $_connection;
 
-    public function connect($host = false, $username = false, $password = false, $database_name = false)
+    public function connect($host = false, $port = false, $username = false, $password = false, $database_name = false)
     {
         $this->database_name = $database_name; // the DB name is later used to restrict SHOW PROCEDURE STATUS and SHOW_FUNCTION_STATUS to the current database
 
         try {
-            $this->_connection = new PDO("mysql:host=$host;dbname=$database_name", $username, $password, array(
+            $this->_connection = new PDO("mysql:host=$host;port=$port;dbname=$database_name", $username, $password, array(
                 PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"
             ));
             $this->_connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

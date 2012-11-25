@@ -74,7 +74,7 @@ class DBV
                 if (class_exists($class)) {
                     $adapter = new $class;
                     try {
-                        $adapter->connect(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME);
+                        $adapter->connect(DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD, DB_NAME);
                         $this->_adapter = $adapter;
                     } catch (DBV_Exception $e) {
                         $this->error("[{$e->getCode()}] " . $e->getMessage());
