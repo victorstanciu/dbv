@@ -21,7 +21,7 @@ class DBV_Adapter_MySQL implements DBV_Adapter_Interface
             $this->_connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         } catch (PDOException $e) {
-            throw new DBV_Exception($e->getMessage(), $e->getCode());
+            throw new DBV_Exception($e->getMessage(), (int) $e->getCode());
         }
     }
 
@@ -30,7 +30,7 @@ class DBV_Adapter_MySQL implements DBV_Adapter_Interface
         try {
             return $this->_connection->query($sql);
         } catch (PDOException $e) {
-            throw new DBV_Exception($e->getMessage(), $e->getCode());
+            throw new DBV_Exception($e->getMessage(), (int) $e->getCode());
         }
     }
 
