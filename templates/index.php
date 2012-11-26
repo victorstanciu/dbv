@@ -25,9 +25,6 @@
 	<script type="text/javascript" src="public/scripts/dbv.js"></script>
 </head>
 <body>
-	<div id="log">
-		<?php $this->_view('log'); ?>
-	</div>
 	<div class="navbar navbar-static-top navbar-inverse">
 		<div class="navbar-inner">
 			<div class="container">
@@ -39,6 +36,9 @@
 		</div>		
 	</div>
 	<div id="content" class="container">
+		<div id="log" style="margin: 20px 0 -10px 0;">
+			<?php $this->_view('log'); ?>
+		</div>
 		<div class="row-fluid">
 			<div class="span4">
 				<div id="left">
