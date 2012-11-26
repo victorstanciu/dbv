@@ -23,7 +23,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * 
  * @package DBV
- * @version 1.0
+ * @version 1.0.3
  * @author Victor Stanciu <vic.stanciu@gmail.com>
  * @link http://dbv.vizuina.com
  * @copyright Victor Stanciu 2012
