@@ -21,7 +21,7 @@
  * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- * 
+ *
  * @package DBV
  * @version 1.0.3
  * @author Victor Stanciu <vic.stanciu@gmail.com>
@@ -48,7 +48,7 @@ class DBV
             if (function_exists('apache_request_headers')) {
                 $headers = apache_request_headers();
                 $authorization = $headers['HTTP_AUTHORIZATION'];
-            }                   
+            }
         }
 
         list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':', base64_decode(substr($authorization, 6)));
@@ -169,7 +169,7 @@ class DBV
             foreach ($this->_log as $message) {
                 $return['messages'][$message['type']][] = $message['message'];
             }
-            $this->_json($return);          
+            $this->_json($return);
 
         } else {
             $this->indexAction();
@@ -398,11 +398,11 @@ class DBV
         exit('404 Not Found');
     }
 
-    protected function _json($data = array()) 
+    protected function _json($data = array())
     {
         header("Content-type: text/x-json");
         echo (is_string($data) ? $data : json_encode($data));
-        exit();     
+        exit();
     }
 
     protected function _isXMLHttpRequest()
@@ -416,7 +416,7 @@ class DBV
             if ($headers['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
                 return true;
             }
-        }       
+        }
 
         return false;
     }
