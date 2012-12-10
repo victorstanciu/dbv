@@ -21,7 +21,7 @@
  * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
+ * 
  * @package DBV
  * @version 1.0.3
  * @author Victor Stanciu <vic.stanciu@gmail.com>
@@ -39,6 +39,7 @@ class DBV
     protected $_action = "index";
     protected $_adapter;
     protected $_log = array();
+    protected $databases;    
 
     public function authenticate()
     {
@@ -48,12 +49,12 @@ class DBV
             if (function_exists('apache_request_headers')) {
                 $headers = apache_request_headers();
                 $authorization = $headers['HTTP_AUTHORIZATION'];
-            }
+            }                   
         }
 
         list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':', base64_decode(substr($authorization, 6)));
         if (strlen(DBV_USERNAME) && strlen(DBV_PASSWORD) && (!isset($_SERVER['PHP_AUTH_USER']) || !($_SERVER['PHP_AUTH_USER'] == DBV_USERNAME && $_SERVER['PHP_AUTH_PW'] == DBV_PASSWORD))) {
-            header('WWW-Authenticate: Basic realm="DBV interface"');
+            header('WWW-Authenticate: Basic realm="Restricted Area."');
             header('HTTP/1.0 401 Unauthorized');
             echo 'Access denied';
             exit();
@@ -79,6 +80,12 @@ class DBV
                     } catch (DBV_Exception $e) {
                         $this->error("[{$e->getCode()}] " . $e->getMessage());
                     }
+                    if(isset($_GET['activeDatabase'])) {
+                        $_SESSION['DBV_ACTIVE_DATABASE'] = $_GET['activeDatabase'];
+                        $this->_adapter->setActiveDatabase($_GET['activeDatabase']);
+                    } elseif(isset($_SESSION['DBV_ACTIVE_DATABASE'])) {
+                        $this->_adapter->setActiveDatabase($_SESSION['DBV_ACTIVE_DATABASE']);
+                    }
                 }
             }
         }
@@ -92,14 +99,15 @@ class DBV
         $this->$action();
     }
 
+
     public function indexAction()
     {
         if ($this->_getAdapter()) {
+            $this->databases = $this->_getDatabases();
             $this->schema = $this->_getSchema();
             $this->revisions = $this->_getRevisions();
             $this->revision = $this->_getCurrentRevision();
         }
-
         $this->_view("index");
     }
 
@@ -136,10 +144,10 @@ class DBV
 
     public function revisionsAction()
     {
-        $revisions = isset($_POST['revisions']) ? array_map("intval", $_POST['revisions']) : array();
+        $revisions = isset($_POST['revisions']) && is_array($_POST['revisions']) ? $_POST['revisions'] : array();
         $current_revision = $this->_getCurrentRevision();
 
-        if (count($revisions)) {
+        if (sizeof($revisions) > 0) {
             sort($revisions);
 
             foreach ($revisions as $revision) {
@@ -169,7 +177,7 @@ class DBV
             foreach ($this->_log as $message) {
                 $return['messages'][$message['type']][] = $message['message'];
             }
-            $this->_json($return);
+            $this->_json($return);          
 
         } else {
             $this->indexAction();
@@ -277,6 +285,18 @@ class DBV
         }
     }
 
+
+    /** 
+     * Grab a list of databases from the adapter and retrn them to the view.
+     */
+    protected function _getDatabases()
+    {
+        if(!$this->databases) {
+            $this->databases = $this->_getAdapter()->getDatabases();
+        }
+        return $this->databases;
+    }
+
     protected function _getSchema()
     {
         $return = array();
@@ -317,28 +337,31 @@ class DBV
         $return = array();
 
         foreach (new DirectoryIterator(DBV_REVISIONS_PATH) as $file) {
-            if ($file->isDir() && !$file->isDot() && is_numeric($file->getBasename())) {
+            if ($file->isDir() && !$file->isDot()) {
                 $return[] = $file->getBasename();
             }
         }
 
-        rsort($return, SORT_NUMERIC);
+        natsort($return);
+        $return = array_reverse($return);
+        //rsort($return, SORT_NUMERIC);
 
         return $return;
     }
 
-    protected function _getCurrentRevision()
-    {
-        $file = DBV_META_PATH . DS . 'revision';
+    protected function _getCurrentRevision($database=false)
+    {   
+        $database = !$database ? $this->_getAdapter()->getActiveDatabase() : $database;
+        $file = DBV_META_PATH . DS . $database . '.revision';
         if (file_exists($file)) {
-            return intval(file_get_contents($file));
+            return trim(file_get_contents($file));
         }
         return 0;
     }
 
     protected function _setCurrentRevision($revision)
     {
-        $file = DBV_META_PATH . DS . 'revision';
+        $file = DBV_META_PATH . DS . $this->_getAdapter()->getActiveDatabase() . '.revision';
         if (!@file_put_contents($file, $revision)) {
             $this->error("Cannot write revision file");
         }
@@ -350,7 +373,7 @@ class DBV
         $return = array();
 
         foreach (new DirectoryIterator($dir) as $file) {
-            if ($file->isFile() && pathinfo($file->getFilename(), PATHINFO_EXTENSION) == 'sql') {
+            if ($file->isFile()) {
                 $return[] = $file->getBasename();
             }
         }
@@ -398,11 +421,11 @@ class DBV
         exit('404 Not Found');
     }
 
-    protected function _json($data = array())
+    protected function _json($data = array()) 
     {
         header("Content-type: text/x-json");
         echo (is_string($data) ? $data : json_encode($data));
-        exit();
+        exit();     
     }
 
     protected function _isXMLHttpRequest()
@@ -416,7 +439,7 @@ class DBV
             if ($headers['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
                 return true;
             }
-        }
+        }       
 
         return false;
     }
