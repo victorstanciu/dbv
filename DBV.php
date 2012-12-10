@@ -21,7 +21,7 @@
  * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
+ * 
  * @package DBV
  * @version 1.0.3
  * @author Victor Stanciu <vic.stanciu@gmail.com>
@@ -48,7 +48,7 @@ class DBV
             if (function_exists('apache_request_headers')) {
                 $headers = apache_request_headers();
                 $authorization = $headers['HTTP_AUTHORIZATION'];
-            }
+            }                   
         }
 
         list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':', base64_decode(substr($authorization, 6)));
@@ -136,10 +136,10 @@ class DBV
 
     public function revisionsAction()
     {
-        $revisions = isset($_POST['revisions']) ? array_map("intval", $_POST['revisions']) : array();
+        $revisions = isset($_POST['revisions']) && is_array($_POST['revisions']) ? $_POST['revisions'] : array();
         $current_revision = $this->_getCurrentRevision();
 
-        if (count($revisions)) {
+        if (sizeof($revisions) > 0) {
             sort($revisions);
 
             foreach ($revisions as $revision) {
@@ -169,7 +169,7 @@ class DBV
             foreach ($this->_log as $message) {
                 $return['messages'][$message['type']][] = $message['message'];
             }
-            $this->_json($return);
+            $this->_json($return);          
 
         } else {
             $this->indexAction();
@@ -317,12 +317,14 @@ class DBV
         $return = array();
 
         foreach (new DirectoryIterator(DBV_REVISIONS_PATH) as $file) {
-            if ($file->isDir() && !$file->isDot() && is_numeric($file->getBasename())) {
+            if ($file->isDir() && !$file->isDot()) {
                 $return[] = $file->getBasename();
             }
         }
 
-        rsort($return, SORT_NUMERIC);
+        natsort($return);
+        $return = array_reverse($return);
+        //rsort($return, SORT_NUMERIC);
 
         return $return;
     }
@@ -350,7 +352,7 @@ class DBV
         $return = array();
 
         foreach (new DirectoryIterator($dir) as $file) {
-            if ($file->isFile() && pathinfo($file->getFilename(), PATHINFO_EXTENSION) == 'sql') {
+            if ($file->isFile()) {
                 $return[] = $file->getBasename();
             }
         }
@@ -398,11 +400,11 @@ class DBV
         exit('404 Not Found');
     }
 
-    protected function _json($data = array())
+    protected function _json($data = array()) 
     {
         header("Content-type: text/x-json");
         echo (is_string($data) ? $data : json_encode($data));
-        exit();
+        exit();     
     }
 
     protected function _isXMLHttpRequest()
@@ -416,7 +418,7 @@ class DBV
             if ($headers['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
                 return true;
             }
-        }
+        }       
 
         return false;
     }
