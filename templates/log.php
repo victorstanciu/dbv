@@ -1,7 +1,5 @@
-<?php if (count($this->_log)) { ?>
-    <?php foreach ($this->_log as $message) { ?>
-        <div class="alert alert-<?php echo $message['type']; ?>">
-            <?php echo $message['message']; ?>
-        </div>
-    <?php } ?>
-<?php } ?>
+<?php if (count($this->_log)) { 
+    foreach ($this->_log as $message) { 
+    	echo "<div class='alert alert-{$message['type']}'>{$message['message']}</div>";
+    }
+}
