@@ -28,7 +28,8 @@
 	<div class="navbar navbar-static-top navbar-inverse">
 		<div class="navbar-inner">
 			<div class="container">
-				<a href="index.php" class="brand">dbv<span>.php</span></a>
+				<a href="index.php" class="brand">dbv<span>.php</span> </a>
+				<?php $this->_view('databases'); ?>				
 				<ul class="nav pull-right">
 					<li><a href="http://dbv.vizuina.com">Check for updates</a></li>
 				</ul>

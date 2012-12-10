@@ -4,7 +4,7 @@ require_once dirname(__FILE__) . DS . 'Interface.php';
 
 class DBV_Adapter_MySQL implements DBV_Adapter_Interface
 {
-
+    protected $database_name;
     /**
      * @var PDO
      */
@@ -34,6 +34,18 @@ class DBV_Adapter_MySQL implements DBV_Adapter_Interface
         }
     }
 
+    /**
+     * Grab a complete list of databases that are accessible on this connection.
+     */
+    public function getDatabases() {
+        $return = array();
+        $result = $this->query('SHOW DATABASES');
+        while ($row = $result->fetch(PDO::FETCH_NUM)) {            
+            $return[] = $row[0];
+        }
+        return $return;        
+    }
+
     public function getSchema()
     {
         return array_merge(
@@ -58,6 +70,15 @@ class DBV_Adapter_MySQL implements DBV_Adapter_Interface
         }
 
         return $return;
+    }
+
+    public function getActiveDatabase() {
+        return $this->database_name;
+    }
+
+    public function setActiveDatabase($dbname) {
+        $this->database_name = $dbname;
+        $this->query("USE `{$dbname}`");
     }
 
     public function getViews($prefix = false)

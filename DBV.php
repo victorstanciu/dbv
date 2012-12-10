@@ -39,6 +39,7 @@ class DBV
     protected $_action = "index";
     protected $_adapter;
     protected $_log = array();
+    protected $databases;    
 
     public function authenticate()
     {
@@ -79,6 +80,12 @@ class DBV
                     } catch (DBV_Exception $e) {
                         $this->error("[{$e->getCode()}] " . $e->getMessage());
                     }
+                    if(isset($_GET['activeDatabase'])) {
+                        $_SESSION['DBV_ACTIVE_DATABASE'] = $_GET['activeDatabase'];
+                        $this->_adapter->setActiveDatabase($_GET['activeDatabase']);
+                    } elseif(isset($_SESSION['DBV_ACTIVE_DATABASE'])) {
+                        $this->_adapter->setActiveDatabase($_SESSION['DBV_ACTIVE_DATABASE']);
+                    }
                 }
             }
         }
@@ -92,14 +99,15 @@ class DBV
         $this->$action();
     }
 
+
     public function indexAction()
     {
         if ($this->_getAdapter()) {
+            $this->databases = $this->_getDatabases();
             $this->schema = $this->_getSchema();
             $this->revisions = $this->_getRevisions();
             $this->revision = $this->_getCurrentRevision();
         }
-
         $this->_view("index");
     }
 
@@ -277,6 +285,18 @@ class DBV
         }
     }
 
+
+    /** 
+     * Grab a list of databases from the adapter and retrn them to the view.
+     */
+    protected function _getDatabases()
+    {
+        if(!$this->databases) {
+            $this->databases = $this->_getAdapter()->getDatabases();
+        }
+        return $this->databases;
+    }
+
     protected function _getSchema()
     {
         $return = array();
@@ -329,18 +349,19 @@ class DBV
         return $return;
     }
 
-    protected function _getCurrentRevision()
-    {
-        $file = DBV_META_PATH . DS . 'revision';
+    protected function _getCurrentRevision($database=false)
+    {   
+        $database = !$database ? $this->_getAdapter()->getActiveDatabase() : $database;
+        $file = DBV_META_PATH . DS . $database . '.revision';
         if (file_exists($file)) {
-            return intval(file_get_contents($file));
+            return trim(file_get_contents($file));
         }
         return 0;
     }
 
     protected function _setCurrentRevision($revision)
     {
-        $file = DBV_META_PATH . DS . 'revision';
+        $file = DBV_META_PATH . DS . $this->_getAdapter()->getActiveDatabase() . '.revision';
         if (!@file_put_contents($file, $revision)) {
             $this->error("Cannot write revision file");
         }

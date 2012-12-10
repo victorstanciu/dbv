@@ -5,7 +5,7 @@
 	}
 ?>
 
-<h2>Database schema</h2>
+<h2>Database schema for <?php echo $this->_getAdapter()->getActiveDatabase() ?></h2>
 <div class="log"></div>
 
 <?php if (isset($this->schema) && count($this->schema)) { ?>
