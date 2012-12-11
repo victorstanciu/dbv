@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-	<title>dbv.php - Database versioning, made easy</title>
+	<title><?php echo _("dbv.php - Database versioning, made easy"); ?></title>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 	<meta http-equiv="content-language" content="en" />
 	<meta name="robots" content="noindex,nofollow" />
@@ -30,7 +30,7 @@
 			<div class="container">
 				<a href="index.php" class="brand">dbv<span>.php</span></a>
 				<ul class="nav pull-right">
-					<li><a href="http://dbv.vizuina.com">Check for updates</a></li>
+					<li><a href="http://dbv.vizuina.com"><?php echo _('Check for updates'); ?></a></li>
 				</ul>
 			</div>
 		</div>		
