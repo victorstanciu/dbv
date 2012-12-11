@@ -7,7 +7,7 @@
 			<thead>
 				<tr>
 					<th style="width: 13px;"><input type="checkbox" style="margin-top: 0;" /></th>
-					<th>Revision ID</th>
+					<th><?php echo _('Revision ID'); ?></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -152,15 +152,15 @@
                     var response = transport.responseText.evalJSON();
 
                     if (typeof response.error != 'undefined') {
-                        return APP.growler.error('Error!', response.error);
+                        return APP.growler.error('<?php echo _('Error!'); ?>', response.error);
                     }
 
                     if (response.messages.error) {
-                        render_messages('error', 'revisions', response.messages.error, 'The following errors occured:');
+                        render_messages('error', 'revisions', response.messages.error, '<?php echo _('The following errors occured:'); ?>');
                     }
 
                     if (response.messages.success) {
-                        render_messages('success', 'revisions', response.messages.success, 'The following actions completed successfuly:');
+                        render_messages('success', 'revisions', response.messages.success, '<?php echo _('The following actions completed successfuly:'); ?>');
                     }
 
                     var revision = parseInt(response.revision);

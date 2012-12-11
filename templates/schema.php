@@ -5,7 +5,7 @@
 	}
 ?>
 
-<h2>Database schema</h2>
+<h2><?php echo _('Database schema'); ?></h2>
 <div class="log"></div>
 
 <?php if (isset($this->schema) && count($this->schema)) { ?>
@@ -14,9 +14,9 @@
             <thead>
                 <tr>
                     <th style="width: 13px;"><input type="checkbox" style="margin-top: 0;" /></th>
-                    <th>Schema object</th>
-                    <th style="text-align: center; width: 50px;">In DB</th>
-                    <th style="text-align: center; width: 50px;">On disk</th>
+                    <th><?php echo _('Schema object'); ?></th>
+                    <th style="text-align: center; width: 50px;"><?php echo _('In DB'); ?></th>
+                    <th style="text-align: center; width: 50px;"><?php echo _('On disk'); ?></th>
                 </tr>
             </thead>
             <tbody>
@@ -32,16 +32,16 @@
                         </td>
                         <td style="text-align: center;" data-role="database">
                             <?php if (isset($flags['database'])) { ?>
-                                <span class="label label-success">YES</span>
+                                <span class="label label-success"><?php echo _('YES'); ?></span>
                             <?php } else { ?>
-                                <span class="label label-important">NO</span>
+                                <span class="label label-important"><?php echo _('NO'); ?></span>
                             <?php } ?>
                         </td>
                         <td style="text-align: center;" data-role="disk">
                             <?php if (isset($flags['disk'])) { ?>
-                                <span class="label label-success">YES</span>
+                                <span class="label label-success"><?php echo _('YES'); ?></span>
                             <?php } else { ?>
-                                <span class="label label-important">NO</span>
+                                <span class="label label-important"><?php echo _('NO'); ?></span>
                             <?php } ?>
                         </td>
                     </tr>
@@ -49,8 +49,8 @@
             </tbody>
         </table>
 
-        <button data-role="create" class="btn btn-primary btn-mini">Push to database</button>
-        <button data-role="export" class="btn btn-primary btn-mini">Export to disk</button>
+        <button data-role="create" class="btn btn-primary btn-mini"><?php echo _('Push to database'); ?></button>
+        <button data-role="export" class="btn btn-primary btn-mini"><?php echo _('Export to disk'); ?></button>
     </form>
 
     <script type="text/javascript">
@@ -73,15 +73,15 @@
                     var response = transport.responseText.evalJSON();
 
                     if (typeof response.error != 'undefined') {
-                        return APP.growler.error('Error!', response.error);
+                        return APP.growler.error('<?php echo _('Error!'); ?>', response.error);
                     }
 
                     if (response.messages.error) {
-                        render_messages('error', 'left', response.messages.error, 'The following errors occured:');
+                        render_messages('error', 'left', response.messages.error, '<?php echo _('The following errors occured:'); ?>');
                     }
 
                     if (response.messages.success) {
-                        render_messages('success', 'left', response.messages.success, 'The following actions completed successfuly:');
+                        render_messages('success', 'left', response.messages.success, '<?php echo _('The following actions completed successfuly:'); ?>');
                     }
 
                     var items = response.items;
@@ -106,5 +106,5 @@
         });
     </script>
 <?php } else { ?>
-	<div class="alert alert-info nomargin">No schema objects found on disk or in the database.</div>
+	<div class="alert alert-info nomargin"><?php echo _('No schema objects found on disk or in the database.'); ?></div>
 <?php } ?>
