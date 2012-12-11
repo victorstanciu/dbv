@@ -45,8 +45,9 @@ error_reporting(E_ALL ^ E_NOTICE);
 
 define('DBV_LANGUAGES_PATH', DBV_ROOT_PATH . DS . 'languages');
 define('DEFAULT_LOCALE', 'en_US');
+define('DEFAULT_LOCALE', 'fr_FR');
 define('DEFAULT_ENCODING', 'UTF-8');
-define('DEFAULT_DOMAIN', 'dbv');
+define('DEFAULT_DOMAIN', 'default');
 
 putenv("LC_ALL=".DEFAULT_LOCALE);
 setlocale(LC_ALL, DEFAULT_LOCALE);
