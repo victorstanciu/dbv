@@ -1,4 +1,4 @@
-<h2>Revisions</h2>
+<h2><?php echo __('Revisions'); ?></h2>
 <?php if (isset($this->revisions) && count($this->revisions)) { ?>
 	<form method="post" action="" class="nomargin" id="revisions">
 		<div class="log"></div>
@@ -7,7 +7,7 @@
 			<thead>
 				<tr>
 					<th style="width: 13px;"><input type="checkbox" style="margin-top: 0;" /></th>
-					<th><?php echo _('Revision ID'); ?></th>
+					<th><?php echo __('Revision ID'); ?></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -35,14 +35,14 @@
 									<?php $i = 0; ?>
 									<?php foreach ($files as $file) { ?>
 										<?php
-											$extension = pathinfo($file, PATHINFO_EXTENSION); 
+											$extension = pathinfo($file, PATHINFO_EXTENSION);
 											$content = htmlentities($this->_getRevisionFileContents($revision, $file), ENT_QUOTES, 'UTF-8');
 											$lines = substr_count($content, "\n");
 										?>
 										<div id="revision-file-<?php echo $revision; ?>-<?php echo ++$i; ?>">
 											<div class="log"></div>
 											<div class="alert alert-info heading">
-												<button data-role="editor-save" data-revision="<?php echo $revision; ?>" data-file="<?php echo $file; ?>" type="button" class="btn btn-mini btn-info pull-right" style="margin-top: -1px;">Save file</button>
+												<button data-role="editor-save" data-revision="<?php echo $revision; ?>" data-file="<?php echo $file; ?>" type="button" class="btn btn-mini btn-info pull-right" style="margin-top: -1px;"><?php echo __('Save file') ?></button>
 												<strong class="alert-heading"><?php echo $file; ?></strong>
 											</div>
 											<textarea data-role="editor" name="revision_files[<?php echo $revision; ?>][<?php echo $file; ?>]" rows="<?php echo $lines + 1; ?>"><?php echo $content; ?></textarea>
@@ -58,7 +58,9 @@
 		<input type="submit" class="btn btn-primary" value="Run selected revisions" />
 	</form>
 <?php } else { ?>
-	<div class="alert alert-info nomargin">No revisions in <strong><?php echo REVISIONS_PATH; ?></strong></div>
+	<div class="alert alert-info nomargin">
+		<?php echo __('No revisions in #{path}', array('path' => '<strong>' . REVISIONS_PATH . '</strong>')) ?>
+	</div>
 <?php } ?>
 <script type="text/javascript">
 	document.observe('dom:loaded', function () {
@@ -115,7 +117,7 @@
 				},
 				onSuccess: function (transport) {
 					self.enable();
-					
+
 					var response = transport.responseText.evalJSON();
 
 					if (response.error) {
@@ -135,7 +137,7 @@
 			clear_messages(this);
 
 			if (!data.hasOwnProperty('revisions[]')) {
-				render_messages('error', this, "You didn't select any revisions to run");
+				render_messages('error', this, '<?php echo __("You didn\'t select any revisions to run") ?>');
 				Effect.ScrollTo('log', {duration: 0.2});
 				return false;
 			}
@@ -156,11 +158,11 @@
                     }
 
                     if (response.messages.error) {
-                        render_messages('error', 'revisions', response.messages.error, '<?php echo _('The following errors occured:'); ?>');
+                        render_messages('error', 'revisions', response.messages.error, '<?php echo __('The following errors occured:'); ?>');
                     }
 
                     if (response.messages.success) {
-                        render_messages('success', 'revisions', response.messages.success, '<?php echo _('The following actions completed successfuly:'); ?>');
+                        render_messages('success', 'revisions', response.messages.success, '<?php echo __('The following actions completed successfuly:'); ?>');
                     }
 
                     var revision = parseInt(response.revision);

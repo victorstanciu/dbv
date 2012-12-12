@@ -9,7 +9,7 @@
 
 	<link rel="stylesheet" type="text/css" media="screen" href="public/stylesheets/dbv.css" />
 	<link rel="stylesheet" type="text/css" media="screen" href="public/stylesheets/codemirror.css" />
-	
+
 	<script type="text/javascript">
 		var APP = {};
 	</script>
@@ -30,10 +30,10 @@
 			<div class="container">
 				<a href="index.php" class="brand">dbv<span>.php</span></a>
 				<ul class="nav pull-right">
-					<li><a href="http://dbv.vizuina.com"><?php echo _('Check for updates'); ?></a></li>
+					<li><a href="http://dbv.vizuina.com"><?php echo __('Check for updates'); ?></a></li>
 				</ul>
 			</div>
-		</div>		
+		</div>
 	</div>
 	<div id="content" class="container">
 		<div id="log" style="margin: 20px 0 -10px 0;">
