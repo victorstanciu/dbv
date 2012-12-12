@@ -137,7 +137,7 @@
 			clear_messages(this);
 
 			if (!data.hasOwnProperty('revisions[]')) {
-				render_messages('error', this, '<?php echo __("You didn\'t select any revisions to run") ?>');
+				render_messages('error', this, "<?php echo __("You didn't select any revisions to run") ?>");
 				Effect.ScrollTo('log', {duration: 0.2});
 				return false;
 			}
