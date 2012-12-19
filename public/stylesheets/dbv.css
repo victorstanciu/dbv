@@ -107,6 +107,7 @@ a.revision-handle {
 #left label {
     margin-bottom: 0;
     cursor: pointer;
+    word-break: break-all;
 }
 #left .alert {
     word-break: break-word;
