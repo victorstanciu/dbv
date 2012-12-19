@@ -39,6 +39,11 @@ class DBV
     protected $_action = "index";
     protected $_adapter;
     protected $_log = array();
+	protected $_revisions = array();
+	
+	private function __construct() {
+		$this->_loadRunRevisions();
+	}
 
     public function authenticate()
     {
@@ -97,7 +102,7 @@ class DBV
         if ($this->_getAdapter()) {
             $this->schema = $this->_getSchema();
             $this->revisions = $this->_getRevisions();
-            $this->revision = $this->_getCurrentRevision();
+            $this->run_revisions = array_flip($this->_revisions);
         }
 
         $this->_view("index");
@@ -137,7 +142,6 @@ class DBV
     public function revisionsAction()
     {
         $revisions = isset($_POST['revisions']) ? array_map("intval", $_POST['revisions']) : array();
-        $current_revision = $this->_getCurrentRevision();
 
         if (count($revisions)) {
             sort($revisions);
@@ -154,9 +158,7 @@ class DBV
                     }
                 }
 
-                if ($revision > $current_revision) {
-                    $this->_setCurrentRevision($revision);
-                }
+                $this->_markRevisionAsRun($revision);
                 $this->confirm(__("Executed revision #{revision}", array('revision' => "<strong>$revision</strong>")));
             }
         }
@@ -164,7 +166,7 @@ class DBV
         if ($this->_isXMLHttpRequest()) {
             $return = array(
                 'messages' => array(),
-                'revision' => $this->_getCurrentRevision()
+                'run_revisions' => $this->_revisions
             );
             foreach ($this->_log as $message) {
                 $return['messages'][$message['type']][] = $message['message'];
@@ -330,19 +332,19 @@ class DBV
         return $return;
     }
 
-    protected function _getCurrentRevision()
+    protected function _loadRunRevisions()
     {
         $file = DBV_META_PATH . DS . 'revision';
         if (file_exists($file)) {
-            return intval(file_get_contents($file));
+            return $this->_revisions = json_decode(file_get_contents($file));
         }
-        return 0;
     }
 
-    protected function _setCurrentRevision($revision)
+    protected function _markRevisionAsRun($revision)
     {
+		$this->_revisions[] = $revision;
         $file = DBV_META_PATH . DS . 'revision';
-        if (!@file_put_contents($file, $revision)) {
+        if (!@file_put_contents($file, json_encode(array_unique($this->_revisions)))) {
             $this->error("Cannot write revision file");
         }
     }
