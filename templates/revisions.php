@@ -1,5 +1,5 @@
 <h2><?php echo __('Revisions'); ?></h2>
-<?php if (isset($this->revisions) && count($this->revisions)) { ?>
+<?php if (isset($this->_revisions) && count($this->_revisions)) { ?>
 	<form method="post" action="" class="nomargin" id="revisions">
 		<div class="log"></div>
 
@@ -11,7 +11,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				<?php foreach ($this->revisions as $revision) { ?>
+				<?php foreach ($this->_revisions as $revision) { ?>
 					<?php
 						$ran = array_key_exists($revision, $this->run_revisions);
 						$class = array();

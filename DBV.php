@@ -101,7 +101,7 @@ class DBV
     {
         if ($this->_getAdapter()) {
             $this->schema = $this->_getSchema();
-            $this->revisions = $this->_getRevisions();
+            $this->_revisions = $this->_getRevisions();
             $this->run_revisions = array_flip($this->_revisions);
         }
 
