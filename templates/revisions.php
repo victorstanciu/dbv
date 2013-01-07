@@ -1,5 +1,5 @@
 <h2><?php echo __('Revisions'); ?></h2>
-<?php if (isset($this->revisions) && count($this->revisions)) { ?>
+<?php if (isset($this->_revisions) && count($this->_revisions)) { ?>
 	<form method="post" action="" class="nomargin" id="revisions">
 		<div class="log"></div>
 
@@ -11,9 +11,9 @@
 				</tr>
 			</thead>
 			<tbody>
-				<?php foreach ($this->revisions as $revision) { ?>
+				<?php foreach ($this->_revisions as $revision) { ?>
 					<?php
-						$ran = $this->revision >= $revision;
+						$ran = array_key_exists($revision, $this->run_revisions);
 						$class = array();
 						if ($ran) {
 							$class[] = 'ran';
@@ -21,7 +21,7 @@
 
 						$files = $this->_getRevisionFiles($revision);
 					?>
-					<tr data-revision="<?php echo $revision; ?>"<?php echo count($class) ? ' class="' . implode(' ', $class) . '"'  : ''; ?>>
+					<tr id="rev_<?php echo $revision; ?>" data-revision="<?php echo $revision; ?>"<?php echo count($class) ? ' class="' . implode(' ', $class) . '"'  : ''; ?>>
 						<td class="center">
 							<input type="checkbox" name="revisions[]" value="<?php echo $revision; ?>"<?php echo $ran ? '' : ' checked="checked"'; ?> style="margin-top: 7px;" />
 						</td>
@@ -165,20 +165,12 @@
                         render_messages('success', 'revisions', response.messages.success, '<?php echo __('The following actions completed successfuly:'); ?>');
                     }
 
-                    var revision = parseInt(response.revision);
-                    if (!isNaN(revision)) {
-                    	var rows = form.select('tr[data-revision]');
-
-                		rows.each(function (row) {
-                			row.removeClassName('ran');
-                			if (row.getAttribute('data-revision') > revision) {
-                				return;
-                			}
-                			row.addClassName('ran');
-                			row.down('.revision-files').hide();
-                			row.down('input[type="checkbox"]').checked = false;
-                		});
-                    }
+                    for (i in response.run_revisions) {
+						var row = $('rev_' + response.run_revisions[i]);
+						row.addClassName('ran');
+						row.down('.revision-files').hide();
+						row.down('input[type="checkbox"]').checked = false;
+					}
 
                     Effect.ScrollTo('log', {duration: 0.2});
 				}
