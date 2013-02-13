@@ -13,7 +13,7 @@
 			<tbody>
 				<?php foreach ($this->revisions as $revision) { ?>
 					<?php
-						$ran = $this->revision >= $revision;
+						$ran = (in_array($revision, $this->existing_revisions) == true);
 						$class = array();
 						if ($ran) {
 							$class[] = 'ran';

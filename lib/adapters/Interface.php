@@ -33,4 +33,19 @@ interface DBV_Adapter_Interface
      */
     public function getSchemaObject($name);
     
+    /**
+     * Return an array containing the revision identifier strings for 
+     * all revisions that have already been run on this database.
+     * @example array('1', '3', '4', '5')
+     * @throws DBV_Exception
+     */
+    public function getExistingRevisions();
+    
+    /**
+     * Mark a given revision [identifier string] as having already
+     * been run on this database.  Returns boolean true/false.
+     * @throws DBV_Exception
+     */
+    public function setRevisionAsExisting($revision);
+    
 }
