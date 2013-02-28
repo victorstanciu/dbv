@@ -372,6 +372,15 @@ class DBV
         return false;
     }
 
+	protected function _getRevisionExplanation($revision) {
+		$text = $this -> _getRevisionFileContents($revision, ExplanationFile);
+		if ($text !== false):
+			return $text;
+		else:
+			return false;
+		endif;
+	} // _getRevisionExplanation ()
+
     public function log($item)
     {
         $this->_log[] = $item;

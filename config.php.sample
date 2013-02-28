@@ -53,3 +53,8 @@ setlocale(LC_ALL, DEFAULT_LOCALE);
 bindtextdomain(DEFAULT_DOMAIN, DBV_LANGUAGES_PATH);
 bind_textdomain_codeset(DEFAULT_DOMAIN, DEFAULT_ENCODING);
 textdomain(DEFAULT_DOMAIN);
+
+/**
+ * Revision explanation file
+ */
+define('ExplanationFile', '.comment');

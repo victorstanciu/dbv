@@ -20,6 +20,7 @@
 						}
 
 						$files = $this->_getRevisionFiles($revision);
+						$explanation = htmlentities($this -> _getRevisionExplanation ($revision));
 					?>
 					<tr data-revision="<?php echo $revision; ?>"<?php echo count($class) ? ' class="' . implode(' ', $class) . '"'  : ''; ?>>
 						<td class="center">
@@ -27,7 +28,11 @@
 						</td>
 						<td>
 							<h3 class="nomargin">
-								<a href="javascript:" class="revision-handle"><?php echo $revision; ?></a>
+								<a href="javascript:" class="revision-handle"><?php echo $revision; ?>
+								<?php if ($explanation !== false): ?>
+									- <span class="explanation"><?php echo $explanation ?></span>
+								<?php endif ?>
+								</a>
 							</h3>
 
 							<?php if (count($files)) { ?>
