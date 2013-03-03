@@ -97,7 +97,7 @@ class DBV
         if ($this->_getAdapter()) {
             $this->schema = $this->_getSchema();
             $this->revisions = $this->_getRevisions();
-            $this->revision = $this->_getCurrentRevision();
+            $this->existing_revisions = $this->_getExistingRevisions();
         }
 
         $this->_view("index");
@@ -137,7 +137,7 @@ class DBV
     public function revisionsAction()
     {
         $revisions = isset($_POST['revisions']) ? array_map("intval", $_POST['revisions']) : array();
-        $current_revision = $this->_getCurrentRevision();
+        $existing_revisions = $this->_getExistingRevisions();
 
         if (count($revisions)) {
             sort($revisions);
@@ -152,11 +152,9 @@ class DBV
                             break 2;
                         }
                     }
+                    $this->_setRevisionAsExisting($revision);
                 }
 
-                if ($revision > $current_revision) {
-                    $this->_setCurrentRevision($revision);
-                }
                 $this->confirm(__("Executed revision #{revision}", array('revision' => "<strong>$revision</strong>")));
             }
         }
@@ -164,7 +162,7 @@ class DBV
         if ($this->_isXMLHttpRequest()) {
             $return = array(
                 'messages' => array(),
-                'revision' => $this->_getCurrentRevision()
+                'revision' => $this->_getExistingRevisions()
             );
             foreach ($this->_log as $message) {
                 $return['messages'][$message['type']][] = $message['message'];
@@ -176,6 +174,10 @@ class DBV
         }
     }
 
+    public function _getRemainingRevisions()
+    { 
+      return array_diff($this->_getExistingRevisions(), $this->_getRevisions());
+    }
 
     public function saveRevisionFileAction()
     {
@@ -330,21 +332,14 @@ class DBV
         return $return;
     }
 
-    protected function _getCurrentRevision()
+    protected function _getExistingRevisions()
     {
-        $file = DBV_META_PATH . DS . 'revision';
-        if (file_exists($file)) {
-            return intval(file_get_contents($file));
-        }
-        return 0;
+      return $this->_getAdapter()->getExistingRevisions();
     }
-
-    protected function _setCurrentRevision($revision)
+    
+    protected function _setRevisionAsExisting($revision)
     {
-        $file = DBV_META_PATH . DS . 'revision';
-        if (!@file_put_contents($file, $revision)) {
-            $this->error("Cannot write revision file");
-        }
+      return $this->_getAdapter()->setRevisionAsExisting($revision);
     }
 
     protected function _getRevisionFiles($revision)

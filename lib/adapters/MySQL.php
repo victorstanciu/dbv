@@ -9,6 +9,28 @@ class DBV_Adapter_MySQL implements DBV_Adapter_Interface
      * @var PDO
      */
     protected $_connection;
+    
+    public function getExistingRevisions()
+    { 
+      try {
+        $existing_revisions = $this->query('SELECT revision FROM dbv_revisions')->fetchAll(PDO::FETCH_COLUMN);
+      } catch (DBV_Exception $e) { 
+        $existing_revisions = array();
+      }
+      return $existing_revisions;
+    }
+    
+    public function setRevisionAsExisting($revision)
+    { 
+      try {
+        $statement = $this->_connection->prepare('INSERT INTO dbv_revisions SET revision=?');
+        $statement->bindParam(1, $revision);
+        $insert = $statement->execute();
+      } catch (Exception $e) { 
+        $insert = false;
+      }
+      return $insert;
+    }
 
     public function connect($host = false, $port = false, $username = false, $password = false, $database_name = false)
     {
