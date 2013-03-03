@@ -15,7 +15,7 @@ class DBV_Adapter_MySQL implements DBV_Adapter_Interface
         $this->database_name = $database_name; // the DB name is later used to restrict SHOW PROCEDURE STATUS and SHOW_FUNCTION_STATUS to the current database
 
         try {
-            $this->_connection = new PDO("mysql:host=$host;port=$port;dbname=$database_name", $username, $password, array(
+            $this->_connection = new PDO($this->_buildDsn($host, $port, $database_name), $username, $password, array(
                 PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"
             ));
             $this->_connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -23,6 +23,16 @@ class DBV_Adapter_MySQL implements DBV_Adapter_Interface
         } catch (PDOException $e) {
             throw new DBV_Exception($e->getMessage(), (int) $e->getCode());
         }
+    }
+
+    protected function _buildDsn($host = false, $port = false, $database_name = false)
+    {
+        if($host[0] == "/") {
+            $location = "unix_socket=$host";
+        } else {
+            $location = "host=$host;port=$port";
+        }
+        return "mysql:$location;dbname=$database_name";
     }
 
     public function query($sql)
