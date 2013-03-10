@@ -26,7 +26,10 @@ abstract class DBV_Adapter_PDO implements DBV_Adapter_Interface
 
     abstract protected function _buildDsn($host = false, $port = false, $database_name = false);
 
-    abstract protected function _getPDOAdapterParams();
+    protected function _getPDOAdapterParams()
+    {
+        return array();
+    }
 
     public function query($sql)
     {
@@ -75,6 +78,9 @@ abstract class DBV_Adapter_PDO implements DBV_Adapter_Interface
         return $return;
     }
 
+    /**
+     * @return PDOStatement
+     */
     abstract protected function _getViewsQuery();
 
     public function getTriggers($prefix = false)
@@ -89,6 +95,9 @@ abstract class DBV_Adapter_PDO implements DBV_Adapter_Interface
         return $return;
     }
 
+    /**
+     * @return PDOStatement
+     */
     abstract protected function _getTriggersQuery();
 
     public function getFunctions($prefix = false)
