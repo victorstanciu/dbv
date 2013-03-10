@@ -4,11 +4,9 @@ require_once dirname(__FILE__) . DS . 'Interface.php';
 require_once dirname(__FILE__) . DS . 'PDO.php';
 
 /**
- * Created by JetBrains PhpStorm.
- * User: drew
- * Date: 10/03/13
- * Time: 9:52 AM
- * To change this template use File | Settings | File Templates.
+ * Adapter Class for SQL Server 2008.
+ *
+ * @author Drew J. Sonne <drew.sonne@gmail.com>
  */
 class DBV_Adapter_DBLib extends DBV_Adapter_PDO
 {
@@ -16,16 +14,6 @@ class DBV_Adapter_DBLib extends DBV_Adapter_PDO
     protected function _buildDsn($host = false, $port = false, $database_name = false)
     {
         return "dblib:host=$host;dbname=$database_name";
-    }
-
-    protected function _getPDOAdapterParams()
-    {
-        return array();
-    }
-
-    public function query($sql)
-    {
-        return $this->_connection->query($sql);
     }
 
     public function _getTablesQuery()
@@ -84,12 +72,6 @@ class DBV_Adapter_DBLib extends DBV_Adapter_PDO
         return $this->query("SELECT 0, name FROM SYS.ALL_OBJECTS WHERE is_ms_shipped = 0 AND type='P' AND NAME NOT LIKE 'sp_MS%';");
     }
 
-//    public function getTables($prefix = false)
-//    {
-//        $result = $this->_connection->query();
-//        var_dump($result->fetchAll(PDO::FETCH_ASSOC)); die();
-//    }
-
     public function getSchemaObject($name)
     {
         $statement = $this->_connection->prepare("
@@ -134,8 +116,8 @@ class DBV_Adapter_DBLib extends DBV_Adapter_PDO
                  ORDER BY
                     ORDINAL_POSITION
                  FOR XML PATH('')) j (list)
-            where   xtype = 'U'
-            AND name    NOT IN ('dtproperties')
+            where xtype = 'U'
+            AND name NOT IN ('dtproperties')
             AND so.name = :objectName;
         ");
 
@@ -143,7 +125,10 @@ class DBV_Adapter_DBLib extends DBV_Adapter_PDO
 
         $result = $statement->fetchAll(PDO::FETCH_NUM);
 
-        if(count($result) > 0 && count($result[0]) > 0) {
+        if (count($result) > 0 && count($result[0]) > 0) {
             return $result[0][0];
+        } else {
+            throw new DBV_Exception("Create query could not be created.");
         }
     }
+}
