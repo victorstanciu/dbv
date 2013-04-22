@@ -403,7 +403,7 @@ class DBV
 
     protected function _json($data = array())
     {
-        header("Content-type: text/x-json");
+        header("Content-type: application/json");
         echo (is_string($data) ? $data : json_encode($data));
         exit();
     }
