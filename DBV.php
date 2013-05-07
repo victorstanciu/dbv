@@ -97,7 +97,7 @@ class DBV
         if ($this->_getAdapter()) {
             $this->schema = $this->_getSchema();
             $this->revisions = $this->_getRevisions();
-            $this->revision = $this->_getCurrentRevision();
+            $this->applied_revisions = $this->_getAppliedRevisions();
         }
 
         $this->_view("index");
@@ -137,7 +137,7 @@ class DBV
     public function revisionsAction()
     {
         $revisions = isset($_POST['revisions']) ? array_map("intval", $_POST['revisions']) : array();
-        $current_revision = $this->_getCurrentRevision();
+        $applied_revisions = $this->_getAppliedRevisions();
 
         if (count($revisions)) {
             sort($revisions);
@@ -154,9 +154,8 @@ class DBV
                     }
                 }
 
-                if ($revision > $current_revision) {
-                    $this->_setCurrentRevision($revision);
-                }
+                $this->_markAppliedRevision($revision);
+
                 $this->confirm(__("Executed revision #{revision}", array('revision' => "<strong>$revision</strong>")));
             }
         }
@@ -164,7 +163,7 @@ class DBV
         if ($this->_isXMLHttpRequest()) {
             $return = array(
                 'messages' => array(),
-                'revision' => $this->_getCurrentRevision()
+                'revisions' => $this->_getAppliedRevisions()
             );
             foreach ($this->_log as $message) {
                 $return['messages'][$message['type']][] = $message['message'];
@@ -176,10 +175,10 @@ class DBV
         }
     }
 
-
     public function saveRevisionFileAction()
     {
-        $revision = intval($_POST['revision']);
+        $revision = time();
+
         if (preg_match('/^[a-z0-9\._]+$/i', $_POST['file'])) {
             $file = $_POST['file'];
         } else {
@@ -330,6 +329,59 @@ class DBV
         return $return;
     }
 
+    protected function _getAppliedRevisions()
+    {
+        $path = DBV_META_PATH . DS . 'applied_revisions';
+
+        // Initially try to retrieve revisions from the new-style revisions
+        // If it's not there, assume we have an old-style revision file
+        if ( file_exists( $path ) ) {
+            $content = file_get_contents($path);
+        } else {
+            $path = DBV_META_PATH . DS . 'revision';
+
+            $all_revisions = $this->_getRevisions();
+            $current_revision = $this->_getCurrentRevision();
+
+            $applied_revisions = Array();
+
+            foreach ( $all_revisions as $revision ) {
+                if ( $revision <= $current_revision )
+                    $applied_revisions[] = $revision;
+            }
+
+            return $applied_revisions;
+        }
+
+        if (! $content )
+            return Array();
+
+        if (! $applied_revisions = @unserialize( $content ) ) {
+            $this->error(
+                __("Couldn't read file: #{path}<br />File should contain serialized list of revisions.", array('path' => "<strong>$path</strong>"))
+            );
+        }
+
+        return $applied_revisions;
+    }
+
+    protected function _markAppliedRevision( $revision )
+    {
+        $revisions = $this->_getAppliedRevisions();
+
+        $revisions[] = $revision;
+
+        $revisions = array_unique($revisions);
+
+        $content = serialize($revisions);
+
+        if (!@file_put_contents(DBV_META_PATH . DS . 'applied_revisions', $content)) {
+            $this->error(
+                __("Couldn't write file: #{path}<br />Make sure the user running DBV has adequate permissions.", array('path' => "<strong>$path</strong>"))
+            );
+        }
+    }
+
     protected function _getCurrentRevision()
     {
         $file = DBV_META_PATH . DS . 'revision';
@@ -337,14 +389,6 @@ class DBV
             return intval(file_get_contents($file));
         }
         return 0;
-    }
-
-    protected function _setCurrentRevision($revision)
-    {
-        $file = DBV_META_PATH . DS . 'revision';
-        if (!@file_put_contents($file, $revision)) {
-            $this->error("Cannot write revision file");
-        }
     }
 
     protected function _getRevisionFiles($revision)

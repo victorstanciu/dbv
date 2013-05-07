@@ -13,7 +13,7 @@
 			<tbody>
 				<?php foreach ($this->revisions as $revision) { ?>
 					<?php
-						$ran = $this->revision >= $revision;
+						$ran = in_array($revision, $this->applied_revisions);
 						$class = array();
 						if ($ran) {
 							$class[] = 'ran';
@@ -165,19 +165,21 @@
                         render_messages('success', 'revisions', response.messages.success, '<?php echo __('The following actions completed successfuly:'); ?>');
                     }
 
-                    var revision = parseInt(response.revision);
-                    if (!isNaN(revision)) {
+                    if ( Object.prototype.toString.call(response.revisions) === '[object Array]' ) {
                     	var rows = form.select('tr[data-revision]');
 
-                		rows.each(function (row) {
-                			row.removeClassName('ran');
-                			if (row.getAttribute('data-revision') > revision) {
-                				return;
-                			}
-                			row.addClassName('ran');
+                    	rows.each(function (row) {
+                    		row.removeClassName('ran');
+                    		var row_revision_number = row.getAttribute('data-revision') * 1;
+
+                    		if ( response.revisions.indexOf( row_revision_number ) < 0 ) {
+                    			return;
+                    		}
+
+                    		row.addClassName('ran');
                 			row.down('.revision-files').hide();
                 			row.down('input[type="checkbox"]').checked = false;
-                		});
+                    	});
                     }
 
                     Effect.ScrollTo('log', {duration: 0.2});
