@@ -55,7 +55,8 @@
 				<?php } ?>
 			</tbody>
 		</table>
-		<input type="submit" class="btn btn-primary" value="Run selected revisions" />
+		<button id="add_revision" class="span3 btn btn-success">New revision</button>
+		<input type="submit" class="span3 btn btn-primary" value="Run selected revisions" />
 	</form>
 <?php } else { ?>
 	<div class="alert alert-info nomargin">
@@ -127,6 +128,46 @@
 					render_messages('success', container, response.message);
 				}
 			});
+		});
+		
+		$$("#add_revision").invoke('observe', 'click', function(event) {
+			event.stop();
+
+
+			var self = this;
+			
+			this.disable();
+			
+			clear_messages('revisions');
+			
+			new Ajax.Request('index.php?a=addRevisionFolder', {
+				parameters: {
+					
+				},
+				onSuccess: function (transport) {
+					
+					self.enable();
+					
+                    var response = transport.responseText.evalJSON();
+
+                    // if (typeof response.error != 'undefined') {
+                        // return APP.growler.error('<?php echo _('Error!'); ?>', response.error);
+                    // }
+
+                    if (response.ok != true) {
+                        render_messages('error', 'revisions', response.message, '<?php echo __('The following errors occured:'); ?>');
+                    }
+                    else {
+                        render_messages('success', 'revisions', response.message, '<?php echo __('The following actions completed successfuly:'); ?>');
+                    }
+
+                    var revision = parseInt(response.revision);
+                    if (!isNaN(revision)) {
+                    }
+
+                    Effect.ScrollTo('log', {duration: 0.2});
+				}
+			})
 		});
 
 		form.on('submit', function (event) {

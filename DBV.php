@@ -176,6 +176,21 @@ class DBV
         }
     }
 
+	public function addRevisionFolderAction()
+	{
+		$revision = $this->_getCurrentRevision();
+		while (++$revision)
+		{
+	        $dir = DBV_REVISIONS_PATH . DS . $revision;
+			if (!@file_exists($dir)) {
+				if (!@mkdir($dir))
+					$this->_json(array('ok' => false, 'message' => __("Cannot create revision #{revision}!", array('revision' => "<strong>$revision</strong>"))));
+				break ;
+			}
+		}
+		
+	    $this->_json(array('ok' => true, 'message' => __("Revision #{revision} successfully added!", array('revision' => "<strong>$revision</strong>"))));
+	}
 
     public function saveRevisionFileAction()
     {
