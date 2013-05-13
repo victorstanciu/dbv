@@ -184,7 +184,10 @@ class DBV
 	        $dir = DBV_REVISIONS_PATH . DS . $revision;
 			if (!@file_exists($dir)) {
 				if (!@mkdir($dir))
-					$this->_json(array('ok' => false, 'message' => __("Cannot create revision #{revision}!", array('revision' => "<strong>$revision</strong>"))));
+					$this->_json(array('ok' => false, 'message' => __("Cannot create folder for revision #{revision}!", array('revision' => "<strong>$revision</strong>"))));
+				$dir .= '/comments.sql';
+				if (!@file_put_contents($dir, ''))
+					$this->_json(array('ok' => false, 'message' => __("Cannot create sql file for revision #{revision}!", array('revision' => "<strong>$revision</strong>"))));
 				break ;
 			}
 		}
