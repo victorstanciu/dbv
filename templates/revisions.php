@@ -70,8 +70,7 @@
 			return;
 		}
 
-		var textareas = form.select('textarea');
-		textareas.each(function (textarea) {
+		function init_textarea(textarea) {
 			textarea['data-editor'] = CodeMirror.fromTextArea(textarea, {
 				mode: "text/x-mysql",
 				tabMode: "indent",
@@ -80,9 +79,13 @@
 				lineNumbers: true,
 				theme: 'default'
 			});
-		});
+		}
 
-		$$('.revision-handle').invoke('observe', 'click', function (event) {
+		var textareas = form.select('textarea');
+		textareas.each(init_textarea);
+
+		function revision_handle(event) {
+			
 			var element = event.findElement('.revision-handle');
 			var container = element.up('td').down('.revision-files');
 			if (container) {
@@ -98,9 +101,10 @@
 					});
 				}
 			}
-		});
+		}
+		$$('.revision-handle').invoke('observe', 'click', revision_handle);
 
-		$$('button[data-role="editor-save"]').invoke('observe', 'click', function (event) {
+		function editor_save(event) {
 			var self = this;
 
 			var editor = this.up('.heading').next('textarea')['data-editor'];
@@ -128,7 +132,9 @@
 					render_messages('success', container, response.message);
 				}
 			});
-		});
+		}
+
+		$$('button[data-role="editor-save"]').invoke('observe', 'click', editor_save);
 		
 		$$("#add_revision").invoke('observe', 'click', function(event) {
 			event.stop();
@@ -170,19 +176,18 @@
 							    td2.innerHTML = '<h3 class="nomargin"><a href="javascript:" class="revision-handle">'+rev+'</a></h3>'
 							    				+'<div class="revision-files" style="display: none;"><div id="revision-file-'+rev+'-1">'
 							    					+'<div class="log"></div>'
-							    					+'<div class="alert alert-info heading"></div>'
+							    					+'<div class="alert alert-info heading">'
+							    						+'<button data-role="editor-save" data-revision="'+rev+'" data-file="comments.sql" type="button" class="btn btn-mini btn-info pull-right" style="margin-top: 1px;">Save file</button>'
+							    						+'<strong class="alert-heading">comments.sql</strong>'
+							    					+'</div>'
 							    					+'<textarea data-role="editor" name="revision_files['+rev+'][comments.sql]" rows="1" style="display:none;"> </textarea>'
-							    					+'<div class="CodeMirror"></div>'
 							    				+'</div></div>';
 							tr.appendChild(td);
 							tr.appendChild(td2);
-							// Following does not work in PrototypeJs
-	                    	// alert(form.select('table > tbody'));
-	                    	// form.select('table > tbody').insert({
-	                    		// top:'<tr><td>test</td></tr>'
-	                    	// });
-	                    	
-	                    	
+							$$('.revision-handle').invoke('observe', 'click', revision_handle);
+							$$('button[data-role="editor-save"]').invoke('observe', 'click', editor_save);
+							textareas = form.select('textarea');
+							init_textarea(textareas[0]);
 	                    }
                     }
 
