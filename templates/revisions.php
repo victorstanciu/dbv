@@ -10,7 +10,7 @@
 					<th><?php echo __('Revision ID'); ?></th>
 				</tr>
 			</thead>
-			<tbody>
+			<tbody id="revision_body">
 				<?php foreach ($this->revisions as $revision) { ?>
 					<?php
 						$ran = $this->revision >= $revision;
@@ -150,20 +150,42 @@
 					
                     var response = transport.responseText.evalJSON();
 
-                    // if (typeof response.error != 'undefined') {
-                        // return APP.growler.error('<?php echo _('Error!'); ?>', response.error);
-                    // }
-
                     if (response.ok != true) {
                         render_messages('error', 'revisions', response.message, '<?php echo __('The following errors occured:'); ?>');
                     }
                     else {
                         render_messages('success', 'revisions', response.message, '<?php echo __('The following actions completed successfuly:'); ?>');
+
+	                    var rev = parseInt(response.rev);
+	                    if (!isNaN(rev)) {
+							var tbody = document.getElementById('revision_body');
+							var tr = tbody.insertRow(0);
+							
+							tr.setAttribute('data-revision', rev);
+							
+							var td = document.createElement('td');
+								td.className = "center";
+							    td.innerHTML = '<input type="checkbox" name="revisions[]" value="'+rev+'" style="margin-top: 7px" />';
+							var td2 = document.createElement('td');
+							    td2.innerHTML = '<h3 class="nomargin"><a href="javascript:" class="revision-handle">'+rev+'</a></h3>'
+							    				+'<div class="revision-files" style="display: none;"><div id="revision-file-'+rev+'-1">'
+							    					+'<div class="log"></div>'
+							    					+'<div class="alert alert-info heading"></div>'
+							    					+'<textarea data-role="editor" name="revision_files['+rev+'][comments.sql]" rows="1" style="display:none;"> </textarea>'
+							    					+'<div class="CodeMirror"></div>'
+							    				+'</div></div>';
+							tr.appendChild(td);
+							tr.appendChild(td2);
+							// Following does not work in PrototypeJs
+	                    	// alert(form.select('table > tbody'));
+	                    	// form.select('table > tbody').insert({
+	                    		// top:'<tr><td>test</td></tr>'
+	                    	// });
+	                    	
+	                    	
+	                    }
                     }
 
-                    var revision = parseInt(response.revision);
-                    if (!isNaN(revision)) {
-                    }
 
                     Effect.ScrollTo('log', {duration: 0.2});
 				}

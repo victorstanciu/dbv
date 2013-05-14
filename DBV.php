@@ -186,13 +186,13 @@ class DBV
 				if (!@mkdir($dir))
 					$this->_json(array('ok' => false, 'message' => __("Cannot create folder for revision #{revision}!", array('revision' => "<strong>$revision</strong>"))));
 				$dir .= '/comments.sql';
-				if (!@file_put_contents($dir, ''))
+				if (!@file_put_contents($dir, ' '))
 					$this->_json(array('ok' => false, 'message' => __("Cannot create sql file for revision #{revision}!", array('revision' => "<strong>$revision</strong>"))));
 				break ;
 			}
 		}
 		
-	    $this->_json(array('ok' => true, 'message' => __("Revision #{revision} successfully added!", array('revision' => "<strong>$revision</strong>"))));
+	    $this->_json(array('ok' => true, 'rev' => $revision, 'message' => __("Revision <strong>#{revision}</strong> successfully added!", array('revision' => "$revision"))));
 	}
 
     public function saveRevisionFileAction()
