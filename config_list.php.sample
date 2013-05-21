@@ -1,0 +1,8 @@
+<?php
+
+$conf_list = array("config.php"
+				);
+
+$current_id = 0;
+$current = $conf_list[$current_id];
+				

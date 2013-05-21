@@ -35,7 +35,6 @@ class DBV_Exception extends Exception
 
 class DBV
 {
-
     protected $_action = "index";
     protected $_adapter;
     protected $_log = array();
@@ -133,6 +132,27 @@ class DBV
             $this->_json($return);
         }
     }
+	
+	public function switchDatabaseAction()
+	{
+		$databaseID = isset($_GET['newdb']) ? $_GET['newdb'] : false;
+		if ($databaseID)
+		{
+			$lines = @file(DBV_ROOT_PATH . DS . "config_list.php");
+			if ($lines)
+			{
+				$needlesize = @strlen('$current_id');
+				foreach ($lines as &$line)
+					if (!@strncmp($line, '$current_id', $needlesize))
+						{
+							$line = '$current_id = ' . $databaseID . ";" . PHP_EOL;
+							break ;
+						}
+				@file_put_contents(DBV_ROOT_PATH . DS . "config_list.php", @implode("", $lines));
+			}
+		}
+		$this->indexAction();
+	}
 
     public function revisionsAction()
     {
@@ -292,6 +312,8 @@ class DBV
 
     protected function _view($view)
     {
+    	global $conf_list;
+		global $current_id;
         $file = DBV_ROOT_PATH . DS . 'templates' . DS . "$view.php";
         if (file_exists($file)) {
             include($file);

@@ -23,6 +23,13 @@
 	<script type="text/javascript" src="public/scripts/codemirror/mode/php.js"></script>
 
 	<script type="text/javascript" src="public/scripts/dbv.js"></script>
+
+	<script type="text/javascript" src="public/scripts/jquery.js"></script>
+	<script type="text/javascript" src="public/scripts/bootstrap.js"></script>
+	<script>
+		//Use $j instead of $ when you want jQuery stuff. Avoid conflict with prototype.js
+		$j = jQuery.noConflict();
+	</script>
 </head>
 <body>
 	<div class="navbar navbar-static-top navbar-inverse">
@@ -30,6 +37,18 @@
 			<div class="container">
 				<a href="index.php" class="brand">dbv<span>.php</span></a>
 				<ul class="nav pull-right">
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+					      Select database
+					      <b class="caret"></b>
+					    </a>
+						<ul class="dropdown-menu">
+							<?php
+							foreach ($conf_list as $i => $conf)
+								echo '<li '. ($i == $current_id ? 'class="disabled"' : "") .'><a href="index.php?a=switchDatabase&newdb='.$i.'">'.preg_replace("/\.[^.]*$/", "", $conf) .'</a></li>';
+							?>
+						</ul>
+					</li>
 					<li><a href="http://dbv.vizuina.com"><?php echo __('Check for updates'); ?></a></li>
 				</ul>
 			</div>
