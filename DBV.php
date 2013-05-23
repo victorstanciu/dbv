@@ -136,7 +136,7 @@ class DBV
 	public function switchDatabaseAction()
 	{
 		$databaseID = isset($_GET['newdb']) ? $_GET['newdb'] : false;
-		if ($databaseID)
+		if ($databaseID !== false)
 		{
 			$lines = @file(DBV_ROOT_PATH . DS . "config_list.php");
 			if ($lines)
@@ -149,6 +149,7 @@ class DBV
 							break ;
 						}
 				@file_put_contents(DBV_ROOT_PATH . DS . "config_list.php", @implode("", $lines));
+				header('Location: index.php');
 			}
 		}
 		$this->indexAction();
