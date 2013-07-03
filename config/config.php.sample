@@ -24,7 +24,7 @@ define('DBV_PASSWORD', 'dbv');
 define('DB_ADAPTER', 'MySQL');
 
 define('DS', DIRECTORY_SEPARATOR);
-define('DBV_ROOT_PATH', dirname(__FILE__));
+define('DBV_ROOT_PATH', dirname(__FILE__) . DIRECTORY_SEPARATOR . "..");
 
 /**
  * Only edit this lines if you want to place your schema files in custom locations
