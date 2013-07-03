@@ -35,7 +35,6 @@ class DBV_Exception extends Exception
 
 class DBV
 {
-
     protected $_action = "index";
     protected $_adapter;
     protected $_log = array();
@@ -133,6 +132,28 @@ class DBV
             $this->_json($return);
         }
     }
+	
+	public function switchDatabaseAction()
+	{
+		$databaseID = isset($_GET['newdb']) ? $_GET['newdb'] : false;
+		if ($databaseID !== false)
+		{
+			$lines = @file(DBV_ROOT_PATH . DS . "config_list.php");
+			if ($lines)
+			{
+				$needlesize = @strlen('$current_id');
+				foreach ($lines as &$line)
+					if (!@strncmp($line, '$current_id', $needlesize))
+						{
+							$line = '$current_id = ' . $databaseID . ";" . PHP_EOL;
+							break ;
+						}
+				@file_put_contents(DBV_ROOT_PATH . DS . "config_list.php", @implode("", $lines));
+				header('Location: index.php');
+			}
+		}
+		$this->indexAction();
+	}
 
     public function revisionsAction()
     {
@@ -176,6 +197,24 @@ class DBV
         }
     }
 
+	public function addRevisionFolderAction()
+	{
+		$revision = $this->_getCurrentRevision();
+		while (++$revision)
+		{
+	        $dir = DBV_REVISIONS_PATH . DS . $revision;
+			if (!@file_exists($dir)) {
+				if (!@mkdir($dir))
+					$this->_json(array('ok' => false, 'message' => __("Cannot create folder for revision #{revision}!", array('revision' => "<strong>$revision</strong>"))));
+				$dir .= '/comments.sql';
+				if (!@file_put_contents($dir, ' '))
+					$this->_json(array('ok' => false, 'message' => __("Cannot create sql file for revision #{revision}!", array('revision' => "<strong>$revision</strong>"))));
+				break ;
+			}
+		}
+		
+	    $this->_json(array('ok' => true, 'rev' => $revision, 'message' => __("Revision <strong>#{revision}</strong> successfully added!", array('revision' => "$revision"))));
+	}
 
     public function saveRevisionFileAction()
     {
@@ -274,6 +313,8 @@ class DBV
 
     protected function _view($view)
     {
+    	global $conf_list;
+		global $current_id;
         $file = DBV_ROOT_PATH . DS . 'templates' . DS . "$view.php";
         if (file_exists($file)) {
             include($file);
