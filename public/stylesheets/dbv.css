@@ -10,7 +10,7 @@ body {
     outline: 0;
 }
 pre {
-	font-family: monospace;
+    font-family: monospace;
 }
 #left, #right {
     padding: 10px 0;
@@ -27,7 +27,7 @@ pre {
     border-radius: 4px;
     box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
 }
-input[type="submit"] {
+input[type="submit"],input[type="button"] {
     font-size: 12px;
 }
 .left {
@@ -62,14 +62,14 @@ h4 {
     margin-bottom: 0 !important
 }
 #revision tr.ran td {
-	color: #999;
-	background-color: #F7F9FB;
+    color: #999;
+    background-color: #F7F9FB;
 }
 a.revision-handle {
-	display: block;
+    display: block;
 }
 .ran a.revision-handle {
-	color: #999;
+    color: #999;
 }
 #revisions .heading {
     margin-bottom: 0;
@@ -107,6 +107,7 @@ a.revision-handle {
 #left label {
     margin-bottom: 0;
     cursor: pointer;
+    word-break: break-all;
 }
 #left .alert {
     word-break: break-word;
@@ -157,4 +158,7 @@ a.revision-handle {
 .navbar .brand span {
     color: black;
     text-shadow: 0 1px 0 rgba(255, 255, 255, .1), 0 0 30px rgba(255, 255, 255, .125);
+}
+#mark-as-ran,#toggle-ran {
+    margin-left: 5px;
 }

@@ -39,6 +39,12 @@ class DBV
     protected $_action = "index";
     protected $_adapter;
     protected $_log = array();
+    protected $_revisions = array();
+    public $run_revisions = array();
+    
+    private function __construct() {
+        $this->_loadRunRevisions();
+    }
 
     public function authenticate()
     {
@@ -63,7 +69,7 @@ class DBV
     /**
      * @return DBV_Adapter_Interface
      */
-    protected function _getAdapter()
+    protected function _getAdapter($schema)
     {
         if (!$this->_adapter) {
             $file = DBV_ROOT_PATH . DS . 'lib' . DS . 'adapters' . DS . DB_ADAPTER . '.php';
@@ -74,12 +80,18 @@ class DBV
                 if (class_exists($class)) {
                     $adapter = new $class;
                     try {
-                        $adapter->connect(DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD, DB_NAME);
+                        $adapter->connect(DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD, $schema);//DB_NAME
                         $this->_adapter = $adapter;
                     } catch (DBV_Exception $e) {
                         $this->error("[{$e->getCode()}] " . $e->getMessage());
                     }
                 }
+            }
+        } else {
+            try {
+                $this->_adapter->connect(DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD, $schema);//DB_NAME
+            } catch (DBV_Exception $e) {
+                $this->error("[{$e->getCode()}] " . $e->getMessage());
             }
         }
 
@@ -94,10 +106,10 @@ class DBV
 
     public function indexAction()
     {
-        if ($this->_getAdapter()) {
-            $this->schema = $this->_getSchema();
-            $this->revisions = $this->_getRevisions();
-            $this->revision = $this->_getCurrentRevision();
+        if ($this->_getAdapter(DB_NAME)) {
+            $this->schemas = $this->_getSchema();
+            $this->active_schema = DB_NAME;
+            $this->_revisions = $this->_getRevisions();
         }
 
         $this->_view("index");
@@ -105,7 +117,8 @@ class DBV
 
     public function schemaAction()
     {
-        $items = isset($_POST['schema']) ? $_POST['schema'] : array();
+        $items = isset($_POST['items']) ? $_POST['items'] : array();
+        $schema = isset($_POST['schema']) ? $_POST['schema'] : '';
 
         if ($this->_isXMLHttpRequest()) {
             if (!count($items)) {
@@ -115,10 +128,10 @@ class DBV
             foreach ($items as $item) {
                 switch ($_POST['action']) {
                     case 'create':
-                        $this->_createSchemaObject($item);
+                        $this->_createSchemaObject($schema, $item);
                         break;
                     case 'export':
-                        $this->_exportSchemaObject($item);
+                        $this->_exportSchemaObject($schema, $item);
                         break;
                 }
             }
@@ -136,11 +149,10 @@ class DBV
 
     public function revisionsAction()
     {
-        $revisions = isset($_POST['revisions']) ? array_map("intval", $_POST['revisions']) : array();
-        $current_revision = $this->_getCurrentRevision();
+        $revisions = filter_input(INPUT_POST, "revisions", FILTER_UNSAFE_RAW, array("flags" => FILTER_REQUIRE_ARRAY));
 
-        if (count($revisions)) {
-            sort($revisions);
+        if (is_array($revisions)) {
+            $revisions = array_reverse($revisions);
 
             foreach ($revisions as $revision) {
                 $files = $this->_getRevisionFiles($revision);
@@ -148,15 +160,13 @@ class DBV
                 if (count($files)) {
                     foreach ($files as $file) {
                         $file = DBV_REVISIONS_PATH . DS . $revision . DS . $file;
-                        if (!$this->_runFile($file)) {
+                        if (!$this->_runFile($file, DB_NAME)) {
                             break 2;
                         }
                     }
                 }
 
-                if ($revision > $current_revision) {
-                    $this->_setCurrentRevision($revision);
-                }
+                $this->_markRevisionAsRun($revision);
                 $this->confirm(__("Executed revision #{revision}", array('revision' => "<strong>$revision</strong>")));
             }
         }
@@ -164,7 +174,7 @@ class DBV
         if ($this->_isXMLHttpRequest()) {
             $return = array(
                 'messages' => array(),
-                'revision' => $this->_getCurrentRevision()
+                'run_revisions' => $this->_revisions
             );
             foreach ($this->_log as $message) {
                 $return['messages'][$message['type']][] = $message['message'];
@@ -175,12 +185,44 @@ class DBV
             $this->indexAction();
         }
     }
+    
+    public function markAsRanAction() {
+        $revisions = filter_input(INPUT_POST, "revisions", FILTER_UNSAFE_RAW, array("flags" => FILTER_REQUIRE_ARRAY));
+        
+        if (is_array($revisions)) {
+            foreach ($revisions as $revision) {
+                $this->_markRevisionAsRun($revision);
+                $this->confirm(__("Revision #{revision} marked as ran", array('revision' => "<strong>$revision</strong>")));
+            }
+        }
+        
+        if ($this->_isXMLHttpRequest()) {
+            $return = array(
+                'messages' => array(),
+                'revisions_marked' => $this->_revisions
+            );
+            
+            foreach ($this->_log as $message) {
+                $return['messages'][$message['type']][] = $message['message'];
+            }
+            
+            $this->_json($return);
 
+        } else {
+            $this->indexAction();
+        }
+    }
 
     public function saveRevisionFileAction()
     {
-        $revision = intval($_POST['revision']);
-        if (preg_match('/^[a-z0-9\._]+$/i', $_POST['file'])) {
+        $revision = $_POST['revision'];
+        // if the revision doesn't start with a number then error
+        if (!ctype_digit($revision[0])) {
+            $this->_json(array(
+                'error' => __("Revision names must start with a number.")
+            ));
+        }
+        if (preg_match('/^[a-z0-9\._\-]+$/i', $_POST['file'])) {
             $file = $_POST['file'];
         } else {
             $this->_json(array(
@@ -204,40 +246,40 @@ class DBV
         $this->_json(array('ok' => true, 'message' => __("File #{path} successfully saved!", array('path' => "<strong>$path</strong>"))));
     }
 
-    protected function _createSchemaObject($item)
+    protected function _createSchemaObject($schema, $item)
     {
-        $file = DBV_SCHEMA_PATH . DS . "$item.sql";
+        $file = DBV_SCHEMA_PATH . DS . $schema . DS . "{$item}.sql";
 
         if (file_exists($file)) {
-            if ($this->_runFile($file)) {
-                $this->confirm(__("Created schema object #{item}", array('item' => "<strong>$item</strong>")));
+            if ($this->_runFile($file, $schema)) {
+                $this->confirm(__("Created schema object #{item}", array('item' => "<strong>{$item}</strong>")));
             }
         } else {
             $this->error(__("Cannot find file for schema object #{item} (looked in #{schema_path})", array(
-                'item' => "<strong>$item</strong>",
-                'schema_path' => DBV_SCHEMA_PATH
+                'item' => "<strong>{$item}</strong>",
+                'schema_path' => DBV_SCHEMA_PATH . DS . $schema
             )));
         }
     }
 
-    protected function _exportSchemaObject($item)
+    protected function _exportSchemaObject($schema, $item)
     {
         try {
-            $sql = $this->_getAdapter()->getSchemaObject($item);
+            $sql = $this->_getAdapter($schema)->getSchemaObject($item);
 
-            $file = DBV_SCHEMA_PATH . DS . "$item.sql";
+            $file = DBV_SCHEMA_PATH . DS . $schema . DS . "{$item}.sql";
 
             if (@file_put_contents($file, $sql)) {
-                $this->confirm(__("Wrote file: #{file}", array('file' => "<strong>$file</strong>")));
+                $this->confirm(__("Wrote file: #{file}", array('file' => "<strong>{$file}</strong>")));
             } else {
-                $this->error(__("Cannot write file: #{file}", array('file' => "<strong>$file</strong>")));
+                $this->error(__("Cannot write file: #{file}", array('file' => "<strong>{$file}</strong>")));
             }
         } catch (DBV_Exception $e) {
             $this->error(($e->getCode() ? "[{$e->getCode()}] " : '') . $e->getMessage());
         }
     }
 
-    protected function _runFile($file)
+    protected function _runFile($file, $schema)
     {
         $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
 
@@ -245,15 +287,15 @@ class DBV
             case 'sql':
                 $content = file_get_contents($file);
                 if ($content === false) {
-                    $this->error(__("Cannot open file #{file}", array('file' => "<strong>$file</strong>")));
+                    $this->error(__("Cannot open file #{file}", array('file' => "<strong>{$file}</strong>")));
                     return false;
                 }
 
                 try {
-                    $this->_getAdapter()->query($content);
+                    $this->_getAdapter($schema)->query($content);
                     return true;
                 } catch (DBV_Exception $e) {
-                    $this->error("[{$e->getCode()}] {$e->getMessage()} in <strong>$file</strong>");
+                    $this->error("[{$e->getCode()}] {$e->getMessage()} in <strong>{$file}</strong>");
                 }
                 break;
         }
@@ -283,30 +325,44 @@ class DBV
     protected function _getSchema()
     {
         $return = array();
-        $database = $this->_getAdapter()->getSchema();
-        $disk = $this->_getDiskSchema();
+        $schemas = $this->_getSchemas();
 
-        if (count($database)) {
+        foreach ($schemas as $schema) {
+            $database = $this->_getAdapter($schema)->getSchema();
+            $disk = $this->_getDiskSchema($schema);
+
             foreach ($database as $item) {
-                $return[$item]['database'] = true;
+                $return[$schema][$item]['database'] = true;
             }
-        }
 
-        if (count($disk)) {
             foreach ($disk as $item) {
-                $return[$item]['disk'] = true;
+                $return[$schema][$item]['disk'] = true;
             }
+
+            ksort($return[$schema]);
         }
 
-        ksort($return);
         return $return;
     }
 
-    protected function _getDiskSchema()
+    protected function _getSchemas()
     {
         $return = array();
 
-        foreach (new DirectoryIterator(DBV_SCHEMA_PATH) as $file) {
+        foreach (new DirectoryIterator(DBV_SCHEMA_PATH) as $dir) {
+            if ($dir->isDir() && !$dir->isDot()) {
+                $return[] = $dir->getFilename();
+            }
+        }
+
+        return $return;
+    }
+
+    protected function _getDiskSchema($schema)
+    {
+        $return = array();
+
+        foreach (new DirectoryIterator(DBV_SCHEMA_PATH . DS . $schema) as $file) {
             if ($file->isFile() && pathinfo($file->getFilename(), PATHINFO_EXTENSION) == 'sql') {
                 $return[] = pathinfo($file->getFilename(), PATHINFO_FILENAME);
             }
@@ -320,7 +376,9 @@ class DBV
         $return = array();
 
         foreach (new DirectoryIterator(DBV_REVISIONS_PATH) as $file) {
-            if ($file->isDir() && !$file->isDot() && is_numeric($file->getBasename())) {
+            $base_name = $file->getBasename();
+            // check that the file is a directory, not a . and starts with a number
+            if ($file->isDir() && !$file->isDot() && is_numeric($base_name[0])) {
                 $return[] = $file->getBasename();
             }
         }
@@ -330,19 +388,19 @@ class DBV
         return $return;
     }
 
-    protected function _getCurrentRevision()
+    protected function _loadRunRevisions()
     {
         $file = DBV_META_PATH . DS . 'revision';
         if (file_exists($file)) {
-            return intval(file_get_contents($file));
+            return $this->run_revisions = json_decode(file_get_contents($file));
         }
-        return 0;
     }
 
-    protected function _setCurrentRevision($revision)
+    protected function _markRevisionAsRun($revision)
     {
+        $this->run_revisions[] = $revision;
         $file = DBV_META_PATH . DS . 'revision';
-        if (!@file_put_contents($file, $revision)) {
+        if (!@file_put_contents($file, json_encode(array_unique($this->run_revisions)))) {
             $this->error("Cannot write revision file");
         }
     }

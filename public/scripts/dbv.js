@@ -1,4 +1,13 @@
 document.observe("dom:loaded", function () {
+    var my_accordion = new Accordion('accordion');
+    $$('#accordion .accordion_toggle_active').each(function(toggle) {
+        var content = toggle.next(0);
+        content.setStyle({
+            height: 'auto',
+            display: 'block'
+        });
+        my_accordion.showAccordion = content;
+    });
     $$('th input[type="checkbox"]').invoke('observe', 'click', function (event) {
         var column = this.up('tr').select('th').indexOf(this.up('th'));
         var checkboxes = this.up('table').select('tr td:nth-child('+ (column + 1) +') input[type="checkbox"][disabled!="true"]');
@@ -52,4 +61,3 @@ function render_messages(type, container, messages, heading) {
 
     $(container).down('.log').insert(element);
 }
-
