@@ -386,18 +386,31 @@ class DBV
 
     protected function _getCurrentRevision()
     {
-        $file = DBV_META_PATH . DS . 'revision';
-        if (file_exists($file)) {
-            return intval(file_get_contents($file));
+        if(DB_REVISION_LOG){
+            $result = $this->_getAdapter()->select("SELECT revision FROM " . DB_REVISION_TABLE . " ORDER BY id DESC LIMIT 1");
+            if($result){
+                return (int) $result[0]['revision'];
+            }
+        }else{
+            $file = DBV_META_PATH . DS . 'revision';
+            if (file_exists($file)) {
+                return intval(file_get_contents($file));
+            }
         }
         return 0;
     }
 
     protected function _setCurrentRevision($revision)
     {
-        $file = DBV_META_PATH . DS . 'revision';
-        if (!@file_put_contents($file, $revision)) {
-            $this->error("Cannot write revision file");
+
+        if(DB_REVISION_LOG){
+            $commit = ($_POST['commit'])? $_POST['commit'] : 'NULL';
+            $this->_getAdapter()->query("INSERT INTO " . DB_REVISION_TABLE . " (commit, revision) VALUES ('" . $commit . "'," . $revision . ")");
+        }else{
+            $file = DBV_META_PATH . DS . 'revision';
+            if (!@file_put_contents($file, $revision)) {
+                $this->error("Cannot write revision file");
+            }
         }
     }
 

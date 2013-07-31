@@ -44,6 +44,11 @@ class DBV_Adapter_MySQL implements DBV_Adapter_Interface
         }
     }
 
+    public function select($sql){
+
+        return $this->query($sql)->fetchAll();
+    }
+
     public function getSchema()
     {
         return array_merge(
