@@ -176,6 +176,60 @@ class DBV
         }
     }
 
+    public function jumptoAction(){
+
+        $final_revision = isset($_POST['revision']) ? intval($_POST['revision']) : 0;
+        $current_revision = $this->_getCurrentRevision();
+        $revisions = $this->_getRevisions();
+            
+        foreach($revisions as $revision){
+
+            //move forward
+            if($revision > $current_revision && $revision <= $final_revision){
+                
+                $files = $this->_getRevisionFiles($revision);
+                if (count($files)) {
+                    foreach ($files as $file) {
+                        $file = DBV_REVISIONS_PATH . DS . $revision . DS . $file;
+                        if (!$this->_runFile($file)) {
+                            break 2;
+                        }
+                    }
+                }
+
+            //rollback
+            }elseif($revision <= $current_revision && $revision > $final_revision){
+
+                $files = $this->_getRevisionRollbackFiles($revision);
+
+                if (count($files)) {
+                    foreach ($files as $file) {
+                        $file = DBV_REVISIONS_PATH . DS . $revision . DS . 'rollback' . DS . $file;
+                        if (!$this->_runFile($file)) {
+                            break 2;
+                        }
+                    }
+                }
+            }
+        }    
+        
+        $this->_setCurrentRevision($final_revision);
+        
+        $this->confirm(__("Jumped to revision #{revision}", array('revision' => "<strong>$final_revision</strong>")));
+        if ($this->_isXMLHttpRequest()) {
+            $return = array(
+                'messages' => array(),
+                'revision' => $this->_getCurrentRevision()
+            );
+            foreach ($this->_log as $message) {
+                $return['messages'][$message['type']][] = $message['message'];
+            }
+            $this->_json($return);
+
+        } else {
+            $this->indexAction();
+        }
+    }
 
     public function saveRevisionFileAction()
     {
@@ -350,6 +404,21 @@ class DBV
     protected function _getRevisionFiles($revision)
     {
         $dir = DBV_REVISIONS_PATH . DS . $revision;
+        $return = array();
+
+        foreach (new DirectoryIterator($dir) as $file) {
+            if ($file->isFile() && pathinfo($file->getFilename(), PATHINFO_EXTENSION) == 'sql') {
+                $return[] = $file->getBasename();
+            }
+        }
+
+        sort($return, SORT_REGULAR);
+        return $return;
+    }
+
+    protected function _getRevisionRollbackFiles($revision)
+    {
+        $dir = DBV_REVISIONS_PATH . DS . $revision . DS . 'rollback';
         $return = array();
 
         foreach (new DirectoryIterator($dir) as $file) {
