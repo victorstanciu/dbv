@@ -17,7 +17,7 @@ class DBV_Adapter_SQLite implements DBV_Adapter_Interface
      * @param type $database_name unused!
      * @throws DBV_Exception
      */
-    public function connect($database_name = false, $username = false, $password = false, $database_name = false)
+    public function connect($host = false, $port = false, $username = false, $password = false, $database_name = false)
     {
         $this->database_name = $database_name; 
         
@@ -38,7 +38,11 @@ class DBV_Adapter_SQLite implements DBV_Adapter_Interface
             throw new DBV_Exception("Error during SQL query.", 0, $e);
         }
     }
-    
+    public function select($sql){
+ 
+        return $this->query($sql)->fetchAll();
+    }
+
     public function prepare($sql)
     {
         try {
