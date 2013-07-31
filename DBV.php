@@ -454,6 +454,22 @@ class DBV
         return false;
     }
 
+    public function findRevisionFromCommit($commit){
+        
+        if(DB_REVISION_LOG && $commit){
+            $result = $this->_getAdapter()->select("SELECT revision FROM " . DB_REVISION_TABLE . " WHERE commit='" . $commit . "' ORDER BY id DESC LIMIT 1");
+            if($result){
+                return (int) $result[0]['revision'];
+            }
+        }else{
+            $this->error("You can only find revisions if you save them to the database.");
+        }
+    }
+
+    public function findLastRevision(){
+        return array_shift($this->_getRevisions());
+    }
+
     public function log($item)
     {
         $this->_log[] = $item;
