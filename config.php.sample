@@ -27,6 +27,12 @@ define('DS', DIRECTORY_SEPARATOR);
 define('DBV_ROOT_PATH', dirname(__FILE__));
 
 /**
+* 	Use db for keeping track of current revision in the database and specify the table
+*/
+define('DB_REVISION_LOG', true);
+define('DB_REVISION_TABLE', 'dbv_revisions');
+
+/**
  * Only edit this lines if you want to place your schema files in custom locations
  * @see http://dbv.vizuina.com/documentation/#optional-settings
  */

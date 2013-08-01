@@ -57,6 +57,20 @@
 		</table>
 		<input type="submit" class="btn btn-primary" value="Run selected revisions" />
 	</form>
+	<br/>
+	<h2><?php echo __('Jump to a specific revision (or rollback)'); ?></h2>
+	<p> If you select a revision lower then the current one it will run the rollback script for every revision inbetween the current and the selected revision.
+	Place your rollback script in a folder 'rollback' within the revision folder. All scripts within that folder will be run.</p>
+	<form method="post" action="index.php?a=jumpto" class="nomargin" id="revisions">
+		<select name="revision">
+			<?php foreach ($this->revisions as $revision): ?>
+				<option value="<?php echo $revision;?>" <?php echo ($this->revision == $revision)? 'selected' : ''?>>Revision <?php echo $revision;?></option> 
+			<?php endforeach;?>
+			<option value="0">Revision 0</option>
+		</select>
+		<input type="submit" class="btn btn-primary" value="GO" />
+
+	</form>
 <?php } else { ?>
 	<div class="alert alert-info nomargin">
 		<?php echo __('No revisions in #{path}', array('path' => '<strong>' . REVISIONS_PATH . '</strong>')) ?>
