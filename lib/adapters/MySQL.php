@@ -87,4 +87,17 @@ class DBV_Adapter_MySQL extends DBV_Adapter_PDO
         return $return;
     }
 
+    public function getCurrentRevision(){
+        $result = $this->query("SELECT revision FROM " . DB_REVISION_TABLE . " ORDER BY id DESC LIMIT 1")->fetchColumn();
+        return ($result)? (int) $result : 0;
+    }
+
+    public function getRevision($commit){
+        $result = $this->query("SELECT revision FROM " . DB_REVISION_TABLE . " WHERE commit='" . $commit . "' ORDER BY id DESC LIMIT 1")->fetchColumn();
+        return ($result)? (int) $result : false;
+    }
+
+    public function setRevision($revision, $commit){
+        $this->query("INSERT INTO " . DB_REVISION_TABLE . " (commit, revision) VALUES ('" . $commit . "'," . $revision . ")");
+    }
 }

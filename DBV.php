@@ -387,10 +387,7 @@ class DBV
     protected function _getCurrentRevision()
     {
         if(DB_REVISION_LOG){
-            $result = $this->_getAdapter()->select("SELECT revision FROM " . DB_REVISION_TABLE . " ORDER BY id DESC LIMIT 1");
-            if($result){
-                return (int) $result[0]['revision'];
-            }
+            return $this->_getAdapter()->getCurrentRevision();
         }else{
             $file = DBV_META_PATH . DS . 'revision';
             if (file_exists($file)) {
@@ -405,7 +402,7 @@ class DBV
 
         if(DB_REVISION_LOG){
             $commit = ($_POST['commit'])? $_POST['commit'] : 'NULL';
-            $this->_getAdapter()->query("INSERT INTO " . DB_REVISION_TABLE . " (commit, revision) VALUES ('" . $commit . "'," . $revision . ")");
+            $this->_getAdapter()->setRevision($revision, $commit);
         }else{
             $file = DBV_META_PATH . DS . 'revision';
             if (!@file_put_contents($file, $revision)) {
@@ -457,10 +454,7 @@ class DBV
     public function findRevisionFromCommit($commit){
         
         if(DB_REVISION_LOG && $commit){
-            $result = $this->_getAdapter()->select("SELECT revision FROM " . DB_REVISION_TABLE . " WHERE commit='" . $commit . "' ORDER BY id DESC LIMIT 1");
-            if($result){
-                return (int) $result[0]['revision'];
-            }
+            return $this->_getAdapter()->getRevision($commit);
         }else{
             $this->error("You can only find revisions if you save them to the database.");
         }
