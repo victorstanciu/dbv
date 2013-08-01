@@ -2,14 +2,16 @@
 
 /**
 *    Call this file from the command line to jump to specific revision.
-*    When using no arguments, it jumps to the last revision, example:
-*    $ php cl.php
+*    Specify 'last' as its first argument to jump to the last revision. 
+*    You can optionally specify the current commit, example:
+*    $ php cl.php last 53f03e596f2ce6517d4c91e4fa379e6bbf37ca4c
 *
-*    Or specify a specific commit as the first argument, example:
-*    $ php cl.php 4 
+*    Or specify 'rev' as a first argument and a specific revision as the second, example:
+*    $ php cl.php rev 4 
 *
-*    Or if you havae the option to log to the db enabled, specify a commit as the first argument, example:
-*    $ php cl.php jklrer328ujd92nmd
+*    Or specify 'commit' as the first argument and a commit as the second to jump to the associated revision.
+*    This only works if you have the db log enabled, example:
+*    $ php cl.php commit 53f03e596f2ce6517d4c91e4fa379e6bbf37ca4c
 */
 
 
@@ -22,17 +24,20 @@ $_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
 
 $dbv = DBV::instance();
 
-if(!$argv[1]){
+if($argv[1] === 'last'){
 	$_POST['revision'] = $dbv->findLastRevision();
-}elseif(!$argv[2]){
-	$_POST['revision'] = $argv[1];
-}else{
-	$rev = $dbv->findRevisionFromCommit($argv[1]);
+	$_POST['commit'] = $argv[2];
+}elseif($argv[1] === 'rev' && $argv[2]){
+	$_POST['revision'] = $argv[2];
+}elseif($argv[1] === 'commit' && $argv[2]){
+	$rev = $dbv->findRevisionFromCommit($argv[2]);
     if($rev){
     	$_POST['revision'] = $rev;
     }else{
     	die('Could not find revision');
     }
+}else{
+	die("No valid arguments found.  Please use 'last', 'rev' or 'commit'");
 }
 
 $dbv->authenticate();
