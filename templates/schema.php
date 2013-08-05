@@ -51,11 +51,18 @@
 
         <button data-role="create" class="btn btn-primary btn-mini"><?php echo __('Push to database'); ?></button>
         <button data-role="export" class="btn btn-primary btn-mini"><?php echo __('Export to disk'); ?></button>
-    </form>
+        <button data-role='delete' class="btn btn-danger btn-mini" ><?php echo __('Delete file');?></button>
+</form>
 
     <script type="text/javascript">
         $('schema').select('button[data-role]').invoke('observe', 'click', function (event) {
             event.stop();
+
+            if(this.getAttribute('data-role') == 'delete') {
+                if(!confirm('Delete selected database file?')) {
+                    return false;
+                }
+            }
 
             var form = this.up('form');
             var data = form.serialize(true);
