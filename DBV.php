@@ -136,7 +136,7 @@ class DBV
 
     public function revisionsAction()
     {
-        $revisions = isset($_POST['revisions']) ? array_map("intval", $_POST['revisions']) : array();
+        $revisions = isset($_POST['revisions']) ? array_filter($_POST['revisions'], 'is_numeric') : array();
         $current_revision = $this->_getCurrentRevision();
 
         if (count($revisions)) {
