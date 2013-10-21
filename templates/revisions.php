@@ -59,7 +59,7 @@
 	</form>
 <?php } else { ?>
 	<div class="alert alert-info nomargin">
-		<?php echo __('No revisions in #{path}', array('path' => '<strong>' . REVISIONS_PATH . '</strong>')) ?>
+		<?php echo __('No revisions in #{path}', array('path' => '<strong>' . DBV_REVISIONS_PATH . '</strong>')) ?>
 	</div>
 <?php } ?>
 <script type="text/javascript">
