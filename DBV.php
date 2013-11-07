@@ -47,7 +47,9 @@ class DBV
         } else {
             if (function_exists('apache_request_headers')) {
                 $headers = apache_request_headers();
-                $authorization = $headers['HTTP_AUTHORIZATION'];
+                $authorization = array_key_exists('HTTP_AUTHORIZATION', $headers)
+                    ? $headers['HTTP_AUTHORIZATION']
+                    : '';
             }
         }
 
