@@ -102,9 +102,7 @@ class DBV_Adapter_MySQL extends DBV_Adapter_PDO
                 `revision` SMALLINT UNSIGNED NOT NULL DEFAULT '0'
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8";
 
-            $result = $this->query($sql);
-            $result->execute();
-
+            $this->query($sql);
         }
     }
 
@@ -125,7 +123,7 @@ class DBV_Adapter_MySQL extends DBV_Adapter_PDO
 
     public function setCurrentRevision($revision)
     {
-        $this->query("TRUNCATE TABLE `" . DBV_REVISION_TABLE . "` ")->execute();
+        $this->query("TRUNCATE TABLE `" . DBV_REVISION_TABLE . "` ");
 
         $sql = "INSERT INTO " . DBV_REVISION_TABLE . " (`revision`) VALUES ('" . $revision . "');";
 
