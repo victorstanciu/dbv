@@ -40,7 +40,7 @@ define('DBV_META_PATH', DBV_DATA_PATH . DS . 'meta');
  * ADAPTER - store in DB
  * FILE - store on disk
  */
-define('DBV_REVISION_STORAGE', 'ADAPTER');
+define('DBV_REVISION_STORAGE', 'FILE');
 
 /**
  * Revision table name
