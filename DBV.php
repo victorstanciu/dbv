@@ -336,18 +336,40 @@ class DBV
 
     protected function _getCurrentRevision()
     {
-        $file = DBV_META_PATH . DS . 'revision';
-        if (file_exists($file)) {
-            return intval(file_get_contents($file));
+        switch (DBV_REVISION_STORAGE) {
+            case 'FILE':
+                $file = DBV_META_PATH . DS . 'revision';
+                if (file_exists($file)) {
+                    return intval(file_get_contents($file));
+                }
+                return 0;
+                break;
+            case 'ADAPTER':
+                return $this->_getAdapter()->getCurrentRevision();
+                break;
+            default:
+                $this->error("Incorrect revision storage specified");
+                break;
         }
-        return 0;
     }
 
     protected function _setCurrentRevision($revision)
     {
-        $file = DBV_META_PATH . DS . 'revision';
-        if (!@file_put_contents($file, $revision)) {
-            $this->error("Cannot write revision file");
+        switch (DBV_REVISION_STORAGE) {
+            case 'FILE':
+                $file = DBV_META_PATH . DS . 'revision';
+                if (!@file_put_contents($file, $revision)) {
+                    $this->error("Cannot write revision file");
+                }
+                break;
+            case 'ADAPTER':
+                if (!$this->_getAdapter()->setCurrentRevision($revision)){
+                    $this->error("Cannot save revision to DB");
+                }
+                break;
+            default:
+                $this->error("Incorrect revision storage specified");
+                break;
         }
     }
 

@@ -87,4 +87,48 @@ class DBV_Adapter_MySQL extends DBV_Adapter_PDO
         return $return;
     }
 
+    protected function _checkRevisionTableExist()
+    {
+        $sql = "
+            SELECT count(*) as count
+            FROM information_schema.tables
+            WHERE table_schema = '" . DB_NAME . "'
+            AND table_name = '" . DBV_REVISION_TABLE . "'";
+
+        $result = $this->query($sql);
+
+        if ($result->fetchColumn() == 0) {
+            $sql = "CREATE TABLE `" . DBV_REVISION_TABLE . "` (
+                `revision` SMALLINT UNSIGNED NOT NULL DEFAULT '0'
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8";
+
+            $result = $this->query($sql);
+            $result->execute();
+
+        }
+    }
+
+    public function getCurrentRevision()
+    {
+        $this->_checkRevisionTableExist();
+
+        $sql = "
+            SELECT revision
+            FROM " . DBV_REVISION_TABLE . "
+            LIMIT 1
+        ";
+
+        $result = $this->query($sql);
+
+        return intval($result->fetchColumn());
+    }
+
+    public function setCurrentRevision($revision)
+    {
+        $this->query("TRUNCATE TABLE `" . DBV_REVISION_TABLE . "` ")->execute();
+
+        $sql = "INSERT INTO " . DBV_REVISION_TABLE . " (`revision`) VALUES ('" . $revision . "');";
+
+        return $this->query($sql)->rowCount();
+    }
 }

@@ -35,6 +35,18 @@ define('DBV_SCHEMA_PATH', DBV_DATA_PATH . DS . 'schema');
 define('DBV_REVISIONS_PATH', DBV_DATA_PATH . DS . 'revisions');
 define('DBV_META_PATH', DBV_DATA_PATH . DS . 'meta');
 
+/**
+ * Select revision storage
+ * ADAPTER - store in DB
+ * FILE - store on disk
+ */
+define('DBV_REVISION_STORAGE', 'ADAPTER');
+
+/**
+ * Revision table name
+ */
+define('DBV_REVISION_TABLE', 'dbv_revision');
+
 
 ini_set('magic_quotes_gpc', 'Off');
 error_reporting(E_ALL ^ E_NOTICE);
