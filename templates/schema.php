@@ -65,7 +65,7 @@
 
             data.action = this.getAttribute('data-role');
 
-            new Ajax.Request('index.php?a=schema', {
+            new Ajax.Request('index.php?a=schema&db=<?php echo $_REQUEST['db'] ?>', {
                 parameters: data,
                 onSuccess: function (transport) {
                     form.enable();

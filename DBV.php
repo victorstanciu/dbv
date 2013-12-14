@@ -40,30 +40,6 @@ class DBV
     protected $_adapter;
     protected $_log = array();
 
-    public function authenticate()
-    {
-        if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
-            $authorization = $_SERVER['HTTP_AUTHORIZATION'];
-        } else {
-            if (function_exists('apache_request_headers')) {
-                $headers = apache_request_headers();
-                $authorization = array_key_exists('HTTP_AUTHORIZATION', $headers)
-                    ? $headers['HTTP_AUTHORIZATION']
-                    : '';
-            }
-        }
-
-        if ($authorization) {
-            list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':', base64_decode(substr($authorization, 6)));
-        }
-        if (strlen(DBV_USERNAME) && strlen(DBV_PASSWORD) && (!isset($_SERVER['PHP_AUTH_USER']) || !($_SERVER['PHP_AUTH_USER'] == DBV_USERNAME && $_SERVER['PHP_AUTH_PW'] == DBV_PASSWORD))) {
-            header('WWW-Authenticate: Basic realm="DBV interface"');
-            header('HTTP/1.0 401 Unauthorized');
-            echo _('Access denied');
-            exit();
-        }
-    }
-
     /**
      * @return DBV_Adapter_Interface
      */
@@ -140,7 +116,7 @@ class DBV
 
     public function revisionsAction()
     {
-        $revisions = isset($_POST['revisions']) ? array_filter($_POST['revisions'], 'is_numeric') : array();
+        $revisions = isset($_POST['revisions']) ? array_map("intval", $_POST['revisions']) : array();
         $current_revision = $this->_getCurrentRevision();
 
         if (count($revisions)) {
@@ -254,7 +230,7 @@ class DBV
                 }
 
                 try {
-                    $this->_getAdapter()->query($content);
+                    $this->_getAdapter()->query(stripslashes($content));
                     return true;
                 } catch (DBV_Exception $e) {
                     $this->error("[{$e->getCode()}] {$e->getMessage()} in <strong>$file</strong>");
@@ -278,6 +254,8 @@ class DBV
 
     protected function _view($view)
     {
+		include(DBV_ROOT_PATH . DS . 'config.php');
+		
         $file = DBV_ROOT_PATH . DS . 'templates' . DS . "$view.php";
         if (file_exists($file)) {
             include($file);
@@ -324,7 +302,7 @@ class DBV
         $return = array();
 
         foreach (new DirectoryIterator(DBV_REVISIONS_PATH) as $file) {
-            if ($file->isDir() && !$file->isDot() && is_numeric($file->getBasename())) {
+            if ($file->isDir() && !$file->isDot()/* && is_numeric($file->getBasename())*/) {
                 $return[] = $file->getBasename();
             }
         }
@@ -407,7 +385,7 @@ class DBV
 
     protected function _json($data = array())
     {
-        header("Content-type: application/json");
+        header("Content-type: text/x-json");
         echo (is_string($data) ? $data : json_encode($data));
         exit();
     }

@@ -53,3 +53,26 @@ function render_messages(type, container, messages, heading) {
     $(container).down('.log').insert(element);
 }
 
+function ShowHide()
+{
+	if(document.getElementById('add_rev_form').style.display == 'none')
+		document.getElementById('add_rev_form').style.display = 'block';
+	else if(document.getElementById('add_rev_form').style.display == 'block')
+		document.getElementById('add_rev_form').style.display = 'none';
+}
+
+function DelFile(val,db)
+{
+	if(confirm("Do you really want to delete this file?"))
+	{
+		window.location.href="add_rev.php?act=delfile&db="+ db +"&val="+val;
+	}
+}
+
+function DelDir(val,db)
+{
+	if(confirm("Do you really want to delete this folder with all its file?"))
+	{
+		window.location.href="add_rev.php?act=delfolder&db="+ db +"&val="+val;
+	}
+}

@@ -28,8 +28,12 @@
 						<td>
 							<h3 class="nomargin">
 								<a href="javascript:" class="revision-handle"><?php echo $revision; ?></a>
+                                <div style="float:right; margin-top:-32px;">
+                                    <input type="button" class="btn btn-mini btn-danger" value="Delete Directory" onclick="DelDir('<?php echo $revision; ?>','<?php echo $_REQUEST['db']; ?>');" />
+                                </div>
 							</h3>
-
+							
+                            
 							<?php if (count($files)) { ?>
 								<div class="revision-files" style="display: none;">
 									<?php $i = 0; ?>
@@ -43,6 +47,9 @@
 											<div class="log"></div>
 											<div class="alert alert-info heading">
 												<button data-role="editor-save" data-revision="<?php echo $revision; ?>" data-file="<?php echo $file; ?>" type="button" class="btn btn-mini btn-info pull-right" style="margin-top: -1px;"><?php echo __('Save file') ?></button>
+                                                
+                                                <button type="button" class="btn btn-mini btn-danger pull-right" style="margin-top: -1px;" onclick="DelFile('<?php echo $revision; ?>/<?php echo $file; ?>','<?php echo $_REQUEST['db']; ?>')"><?php echo __('Delete file') ?></button>
+                                                
 												<strong class="alert-heading"><?php echo $file; ?></strong>
 											</div>
 											<textarea data-role="editor" name="revision_files[<?php echo $revision; ?>][<?php echo $file; ?>]" rows="<?php echo $lines + 1; ?>"><?php echo $content; ?></textarea>
@@ -59,7 +66,7 @@
 	</form>
 <?php } else { ?>
 	<div class="alert alert-info nomargin">
-		<?php echo __('No revisions in #{path}', array('path' => '<strong>' . DBV_REVISIONS_PATH . '</strong>')) ?>
+		<?php echo __('No revisions in #{path}', array('path' => '<strong>' . REVISIONS_PATH . '</strong>')) ?>
 	</div>
 <?php } ?>
 <script type="text/javascript">
@@ -109,7 +116,7 @@
 
 			clear_messages(container);
 
-			new Ajax.Request('index.php?a=saveRevisionFile', {
+			new Ajax.Request('index.php?a=saveRevisionFile&db=<?php echo $_REQUEST['db']; ?>', {
 				parameters: {
 					revision: this.getAttribute('data-revision'),
 					file: this.getAttribute('data-file'),
@@ -144,7 +151,7 @@
 
 			form.disable();
 
-			new Ajax.Request('index.php?a=revisions', {
+			new Ajax.Request('index.php?a=revisions&db=<?php echo $_REQUEST['db']; ?>', {
 				parameters: {
 					"revisions[]": data['revisions[]']
 				},

@@ -11,6 +11,7 @@
 
 // converts rgb() and #xxx to #xxxxxx format,
 // returns self (or first argument) if not convertable
+try{
 String.prototype.parseColor = function() {
   var color = '#';
   if (this.slice(0,4) == 'rgb(') {
@@ -1119,5 +1120,8 @@ $w('fade appear grow shrink fold blindUp blindDown slideUp slideDown '+
 $w('getInlineOpacity forceRerendering setContentZoom collectTextNodes collectTextNodesIgnoreClass getStyles').each(
   function(f) { Effect.Methods[f] = Element[f]; }
 );
+}catch(err1){ }
 
-Element.addMethods(Effect.Methods);
+if(typeof Element!='undefined'){
+	Element.addMethods(Effect.Methods);
+}

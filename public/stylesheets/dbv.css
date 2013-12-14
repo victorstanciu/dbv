@@ -158,3 +158,20 @@ a.revision-handle {
     color: black;
     text-shadow: 0 1px 0 rgba(255, 255, 255, .1), 0 0 30px rgba(255, 255, 255, .125);
 }
+
+/* New CSS */
+
+.add_revison
+{
+	float:right;
+	margin-bottom:20px;	
+}
+
+#add_rev_form
+{
+	width:97%;
+	border:#DDD 1px solid;
+	padding:10px;
+	float:left;
+	margin-bottom:20px;
+}
