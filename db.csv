@@ -1,0 +1,2 @@
+DB HOST,DB PORT,DB USERNAME,DB PASSWORD,DB NAME
+localhost,3306,root,,mysql
