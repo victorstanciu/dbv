@@ -14,7 +14,7 @@
             <thead>
                 <tr>
                     <th style="width: 13px;"><input type="checkbox" style="margin-top: 0;" /></th>
-                    <th><?php echo _('Schema object'); ?></th>
+                    <th><?php echo __('Schema object'); ?></th>
                     <th style="text-align: center; width: 50px;"><?php echo __('In DB'); ?></th>
                     <th style="text-align: center; width: 50px;"><?php echo __('On disk'); ?></th>
                 </tr>

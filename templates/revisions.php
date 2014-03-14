@@ -154,7 +154,7 @@
                     var response = transport.responseText.evalJSON();
 
                     if (typeof response.error != 'undefined') {
-                        return APP.growler.error('<?php echo _('Error!'); ?>', response.error);
+                        return APP.growler.error('<?php echo __('Error!'); ?>', response.error);
                     }
 
                     if (response.messages.error) {
