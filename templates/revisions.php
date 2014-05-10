@@ -1,7 +1,10 @@
 <h2><?php echo __('Revisions'); ?></h2>
+<div class="log"></div>
+<button data-role="add-new-revision"  type="button" class="btn btn-mini btn-primary" > <span class="glyphicon glyphicon-plus"></span> <?php echo __('New revision') ?></button>
+<div id="add-revision-response"></div>
 <?php if (isset($this->revisions) && count($this->revisions)) { ?>
 	<form method="post" action="" class="nomargin" id="revisions">
-		<div class="log"></div>
+		
 
 		<table class="table table-condensed table-striped table-bordered">
 			<thead>
@@ -64,6 +67,30 @@
 <?php } ?>
 <script type="text/javascript">
 	document.observe('dom:loaded', function () {
+
+		$$('button[data-role="add-new-revision"]').invoke('observe', 'click', function (event) {
+
+			var container = $("content");
+			
+			new Ajax.Request('index.php?a=addRevisionFile', {
+				onSuccess: function (transport) {
+
+					var response = transport.responseText.evalJSON();
+
+					if (response.error) {	
+						render_messages('error', 'right', response.error, '<?php echo __('The following errors occured:'); ?>');
+					}else{
+						render_messages('success', 'right', response.messages.success);
+						setTimeout(function(){location.reload()}, 5000);
+					}
+
+
+					
+					
+				}
+			});
+		});
+		
 		var form = $('revisions');
 		if (!form) {
 			return;
@@ -129,6 +156,9 @@
 			});
 		});
 
+		
+
+		
 		form.on('submit', function (event) {
 			event.stop();
 
@@ -184,5 +214,8 @@
 				}
 			});
 		});
+				
 	});
+
+		
 </script>

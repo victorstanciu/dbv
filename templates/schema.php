@@ -4,7 +4,6 @@
 		$selected = $this->_action;
 	}
 ?>
-
 <h2><?php echo __('Database schema'); ?></h2>
 <div class="log"></div>
 
