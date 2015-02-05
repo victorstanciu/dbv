@@ -49,7 +49,7 @@ class DBV
                 $headers = apache_request_headers();
                 $authorization = array_key_exists('HTTP_AUTHORIZATION', $headers)
                     ? $headers['HTTP_AUTHORIZATION']
-                    : '';
+                    : (array_key_exists('Authorization', $headers)?$headers['Authorization']:'');
             }
         }
 
