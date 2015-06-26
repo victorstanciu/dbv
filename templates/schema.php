@@ -25,7 +25,7 @@
                         <td class="center">
                             <input type="checkbox" name="schema[]" value="<?php echo $name; ?>" id="object-<?php echo $name; ?>" style="margin-top: 0;" />
                         </td>
-                        <td>
+                        <td class="object-label">
                             <label for="object-<?php echo $name; ?>">
                                 <?php echo $name; ?>
                             </label>
