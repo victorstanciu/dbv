@@ -33,8 +33,11 @@ abstract class DBV_Adapter_PDO implements DBV_Adapter_Interface
 
     public function query($sql)
     {
-        return $this->_connection->query($sql);
-
+        try {
+            return $this->_connection->query($sql);
+        } catch (PDOException $e) {
+            throw new DBV_Exception($e->getMessage(), (int)$e->getCode());
+        }
     }
 
     public function getSchema()
