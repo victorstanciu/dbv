@@ -124,6 +124,9 @@ class DBV
                     case 'export':
                         $this->_exportSchemaObject($item);
                         break;
+                    case 'delete':
+                        $this->_deleteSchemaObject($item);
+
                 }
             }
 
@@ -133,6 +136,16 @@ class DBV
             }
 
             $return['items'] = $this->_getSchema();
+
+            if($_POST['action'] == 'delete') 
+            {
+                foreach ($items as $item) {
+                    if(!$return['items'][$item]['disk'])
+                    {
+                        $return['items'][$item]['disk'] = false;
+                    }
+                }
+            }
 
             $this->_json($return);
         }
@@ -208,6 +221,25 @@ class DBV
         $this->_json(array('ok' => true, 'message' => __("File #{path} successfully saved!", array('path' => "<strong>$path</strong>"))));
     }
 
+    protected function _deleteSchemaObject($item)
+    {
+        $file = DBV_SCHEMA_PATH . DS . "$item.sql";
+
+        if (file_exists($file)) {
+            if($this->_deleteFile($file))
+            {
+                $this->confirm(__("Deleted schema object #{item}", array('item' => "<strong>$item</strong>")));
+            }
+        } else {
+            $this->error(__("Cannot find file for schema object #{item} (looked in #{schema_path})", array(
+                'item' => "<strong>$item</strong>",
+                'schema_path' => DBV_SCHEMA_PATH
+            )));
+        }
+
+        
+    }
+
     protected function _createSchemaObject($item)
     {
         $file = DBV_SCHEMA_PATH . DS . "$item.sql";
@@ -262,6 +294,20 @@ class DBV
                 break;
         }
 
+        return false;
+    }
+
+    protected function _deleteFile($file) 
+    {
+        $result = unlink($file);
+
+        if($result) {
+            return true;
+        }
+        else {
+            $this->error(__("Cannot open file #{file}", array('file' => "<strong>$file</strong>")));
+            return false;
+        }
         return false;
     }
 
